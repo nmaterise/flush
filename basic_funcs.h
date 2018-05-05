@@ -25,8 +25,6 @@ class basic_funcs {
         ~basic_funcs();
 
         // Accessor Functions
-        float getAmpX() const;
-        float getAmpY() const;
         float getColOn() const;
         float getColOff() const;
 
