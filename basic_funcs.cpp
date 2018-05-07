@@ -115,7 +115,6 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
     tp = t_cyc[0]; tf = t_cyc[1];
     currentState = initial; tcurrent = 0; dataIndex = 0;
     finalState = MatrixXcd::Zero(6,6);
-    // cout << finalState << endl << "===============" << endl;
     dataList(0, 0) = 0;
     dataList(1, 0) = (target*currentState.adjoint()).cwiseAbs().trace();
     for(int i = 0; i < Ncycles; i++) {
@@ -142,7 +141,6 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
     int quarterPoint = dataList.cols()*0.25;
     F = dataList.block(0, 3*quarterPoint, 2, quarterPoint).rowwise().mean()(1);
     finalState = currentState;
-    // cout << finalState << endl << "===============" << endl;
     return;
 }
 
