@@ -11,8 +11,6 @@
 using namespace std;
 using namespace Eigen;
 
-// SWITCHING WEAPONS
-
 void mathematica_outputPlotData(string filename, int listLength, ArrayXXf& dataList) {
     ofstream fout;
     fout.open(filename.c_str());
