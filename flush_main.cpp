@@ -125,15 +125,28 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
     ArrayXXf dummyFdata;
     MatrixXf matrixList[size];
     EigenSolver<MatrixXf> esys[size];
-    prob00to10.setZero(2, size);
+    prob00to10.setZero(2, size);    
+    ArrayXf evals;
+//	MatrixXf evecs;
+    int evalIndex;
     #pragma omp parallel for
     for(int l = 0; l < size; l++) {
         prob00to10(0, l) = mult*(l + mintf);
         getMatrix(2, mult, l + mintf, k, cx, cy, rhoList, dummyFdata, matrixList[l]);
         cout << "M = " << endl << matrixList[l] << "\n*****************\n";
         esys[l].compute(matrixList[l]);
-        prob00to10(1, l) = esys[l].eigenvalues().normalized()[2].real();
-        cout << "evals =" << endl << esys[l].eigenvalues() << "\n*****************\n";
+        evals = esys[l].eigenvalues().real();
+        //evecs = esys[l].eigenvectors().real();
+        evalIndex = 0;
+        for(int i = 0; i < evals.size(); i++) if(evals[i] == evals.maxCoeff()) evalIndex = i;
+        //prob00to10(1, l) = evecs.col(evalIndex)/evecs.col(evalIndex).sum();
+        //prob00to10(1, l) = esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum()(2);
+        // prob00to10(1, l) = esys[l].eigenvalues().normalized()[2].real();
+        cout << "evals =" << endl << evals << "\n*****************\n";
+        cout << "max = " << evals.maxCoeff() << "\n*****************\n";
+        cout << "evec = " << endl << esys[l].eigenvectors() << "\n*****************\n";
+        cout << evalIndex << "\n*****************\n";
+        cout << "sum =\n" << esys[l].eigenvectors().col(evalIndex) << '\n' << esys[l].eigenvectors().col(evalIndex).sum() << "\n*****************\n" << esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum() << (esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum()).row(2);
     }
     return;
 }
@@ -184,7 +197,7 @@ int main() {
     ArrayXf optVal;
     optVal.setZero(5);
     time(&t0);
-    optimizeFlushCycle(10, 5, 12, 15, rhoList, cx, cy, prob00to10);
+    optimizeFlushCycle(10, 5, 14, 15, rhoList, cx, cy, prob00to10);
     // optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoList, ArrayXf cx, ArrayXf cy, ArrayXXf& prob00to10)
     // getMatrix(int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM)
     /*
