@@ -3,6 +3,7 @@
 #include <iostream>
 #include <Eigen>
 #include <KroneckerProduct>
+#include "basic_funcs.h"
 
 using namespace std;
 using namespace Eigen;
@@ -13,13 +14,13 @@ using namespace Eigen;
 #ifndef SINGLE_QUBIT_H
 #define SINGLE_QUBIT_H
 
-class single_qubit {
+class single_qubit : public basic_funcs {
     public:
         // Default Constructor
         single_qubit();
 
         // Overload Constructor
-        single_qubit(float, float);
+        // single_qubit(float, float);
 
         // Destructor
         ~single_qubit();
@@ -32,6 +33,12 @@ class single_qubit {
         
     private:
         // Member Variables
+        basic_funcs bf;
+
+        Matrix2cd eye, a; 
+        Matrix3cd eyye, aa; 
+        MatrixXcd I, ap, apd, as, asd, HX, HY, HP;
+        float collapseOn, collapseOff;
 };
 
 #endif

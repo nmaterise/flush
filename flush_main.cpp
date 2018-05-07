@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <Eigen>
-#include <KroneckerProduct>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/KroneckerProduct>
+// #include <Eigen>
+// #include <KroneckerProduct>
 
 #include "omp.h"
 #include "basic_funcs.h"
@@ -10,6 +12,10 @@
 
 using namespace std;
 using namespace Eigen;
+
+void printfunc() {
+    cout << "THIS WORKS!" << endl;
+}
 
 void mathematica_outputPlotData(string filename, int listLength, ArrayXXf& dataList) {
     ofstream fout;
@@ -195,6 +201,8 @@ int main() {
 
     for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
     cout << "TIME TO RUN :: " << difftime(t1, t0) << endl;
+
+    printfunc();
     
     return 0;
 }
