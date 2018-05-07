@@ -126,26 +126,27 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
     EigenSolver<MatrixXf> esys[size];
     prob00to10.setZero(2, size);    
     ArrayXf evals;
-//	MatrixXf evecs;
+	VectorXf evecs;
     int evalIndex;
     #pragma omp parallel for
     for(int l = 0; l < size; l++) {
         prob00to10(0, l) = mult*(l + mintf);
         getMatrix(2, mult, l + mintf, k, cx, cy, rhoList, dummyFdata, matrixList[l]);
-        cout << "M = " << endl << matrixList[l] << "\n*****************\n";
+        // cout << "M = " << endl << matrixList[l] << "\n*****************\n";
         esys[l].compute(matrixList[l]);
         evals = esys[l].eigenvalues().real();
-        //evecs = esys[l].eigenvectors().real();
         evalIndex = 0;
         for(int i = 0; i < evals.size(); i++) if(evals[i] == evals.maxCoeff()) evalIndex = i;
-        //prob00to10(1, l) = evecs.col(evalIndex)/evecs.col(evalIndex).sum();
-        //prob00to10(1, l) = esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum()(2);
-        // prob00to10(1, l) = esys[l].eigenvalues().normalized()[2].real();
-        cout << "evals =" << endl << evals << "\n*****************\n";
-        cout << "max = " << evals.maxCoeff() << "\n*****************\n";
-        cout << "evec = " << endl << esys[l].eigenvectors() << "\n*****************\n";
-        cout << evalIndex << "\n*****************\n";
-        cout << "sum =\n" << esys[l].eigenvectors().col(evalIndex) << '\n' << esys[l].eigenvectors().col(evalIndex).sum() << "\n*****************\n" << esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum() << (esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum()).row(2);
+        evecs = esys[l].eigenvectors().col(evalIndex).real();
+        prob00to10(1, l) = ((evecs/evecs.sum())(2));
+        // cout << "evals =" << endl << evals << "\n*****************\n";
+        // cout << "max = " << evals.maxCoeff() << "\n*****************\n";
+        // cout << "evec =\n" << evecs << "\n*****************\n";
+        // cout << "evec = " << endl << esys[l].eigenvectors() << "\n*****************\n";
+        // cout << evalIndex << "\n*****************\n";
+        // cout << "sum =\n" << evecs/evecs.sum() << "\n*****************\n";
+        // cout << (evecs/evecs.sum()).row(2) << endl;
+        // cout << "sum =\n" << esys[l].eigenvectors().col(evalIndex) << '\n' << esys[l].eigenvectors().col(evalIndex).sum() << "\n*****************\n" << esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum() << (esys[l].eigenvectors().col(evalIndex)/esys[l].eigenvectors().col(evalIndex).sum()).row(2);
     }
     return;
 }
@@ -191,20 +192,20 @@ int main() {
     cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
     cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
 
-    // ArrayXXf prob00to10[5];
-    ArrayXXf prob00to10;
+    ArrayXXf prob00to10[5];
+    // ArrayXXf prob00to10;
     ArrayXf optVal;
     optVal.setZero(5);
     time(&t0);
-    optimizeFlushCycle(10, 5, 14, 15, rhoList, cx, cy, prob00to10);
+    // optimizeFlushCycle(10, 5, 14, 15, rhoList, cx, cy, prob00to10);
     // optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoList, ArrayXf cx, ArrayXf cy, ArrayXXf& prob00to10)
     // getMatrix(int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM)
-    /*
+    
     for(int k = 1; k < 6; k++) {
         optimizeFlushCycle(10, k, 1, 13, rhoList, cx, cy, prob00to10[k - 1]);
         optVal[k - 1] = prob00to10[k - 1].rowwise().maxCoeff()(1);
     }
-    */
+    
     // MatrixXf matrixM;
     // matrixM = MatrixXf::Zero(6, 6);
     // getMatrix(2, 10, 10, 4, cx, cy, rhoList, FdataList, matrixM);
@@ -215,8 +216,8 @@ int main() {
     // cout << matrixM << endl;
 
 
-    // for(int k = 0; k < 5; k++) cout << optVal[k] << endl << prob00to10[k] << endl << endl;
-    cout << prob00to10 << endl;
+    for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
+    // cout << prob00to10 << endl;
     cout << "TIME TO RUN :: " << difftime(t1, t0) << endl;
     
     return 0;
