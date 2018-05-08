@@ -13,8 +13,9 @@ single_qubit::single_qubit() {
 //     collapseOn = 0.0; collapseOff = 0.0;
 }
 
-// single_qubit::single_qubit(float colOn, float colOff) {
-// }
+single_qubit::single_qubit(int N) {
+
+}
 
 single_qubit::~single_qubit() {
 

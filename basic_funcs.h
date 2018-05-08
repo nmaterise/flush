@@ -36,13 +36,18 @@ class basic_funcs {
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, ArrayXf&, ArrayXXf&, int, int, bool);
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
+
+        // Member Variables
+        Matrix2cd eye;
+        Matrix3cd eyye;
+        MatrixXcd I;
         
     private:
         // Member Variables
-        Matrix2cd eye, a; 
-        Matrix3cd eyye, aa; 
-        MatrixXcd I, ap, apd, as, asd, HX, HY, HP;
+        Matrix2cd a; 
+        Matrix3cd aa; 
+        MatrixXcd ap, apd, as, asd, HX, HY, HP;
         float collapseOn, collapseOff;
 };
 
-#endif
+#endif // BASIC_FUNCS_H

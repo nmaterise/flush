@@ -31,9 +31,10 @@ class single_qubit : public basic_funcs {
         
     private:
         // Member Variables
-        Matrix2cd eye, a; 
-        Matrix3cd eyye, aa; 
-        MatrixXcd I, ap, apd, as, asd, HX, HY, HP;
+        MatrixXcd I, rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
+        Matrix2cd eye, s0, s1; 
+        Matrix3cd eyye, ss0, ss1, ss2;
+        MatrixXcd HX, HY, HP;
         float collapseOn, collapseOff;
 };
 

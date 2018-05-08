@@ -13,10 +13,6 @@
 using namespace std;
 using namespace Eigen;
 
-void printfunc() {
-    cout << "THIS WORKS!" << endl;
-}
-
 void mathematica_outputPlotData(string filename, int listLength, ArrayXXf& dataList) {
     ofstream fout;
     fout.open(filename.c_str());
@@ -149,7 +145,7 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    MatrixXcd I, rho00(6,6), rho01(6,6), rho10(6,6), rho11(6,6), rho2N(6,6), rho20(6,6), rho21(6,6), target(6,6), currentState(6,6);
+    MatrixXcd I, rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
     Matrix2cd eye, s0, s1; 
     Matrix3cd eyye, ss0, ss1, ss2; 
     eye = Matrix2cd::Identity(); eyye = Matrix3cd::Identity();
@@ -201,8 +197,6 @@ int main() {
 
     for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
     cout << "TIME TO RUN :: " << difftime(t1, t0) << endl;
-
-    printfunc();
     
     return 0;
 }
