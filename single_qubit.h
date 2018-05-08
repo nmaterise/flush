@@ -26,15 +26,11 @@ class single_qubit : public basic_funcs {
         ~single_qubit();
 
         // Accessor Functions
-        float getColOn() const;
-        float getColOff() const;
 
         // System functions
         
     private:
         // Member Variables
-        basic_funcs bf;
-
         Matrix2cd eye, a; 
         Matrix3cd eyye, aa; 
         MatrixXcd I, ap, apd, as, asd, HX, HY, HP;
