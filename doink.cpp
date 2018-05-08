@@ -1,7 +1,9 @@
 #include <iostream>
+#include <Eigen>
 
 using namespace std;
+using namespace Eigen;
 
 int main() {
-    cout << "TEST SUCCESSFULL" << endl;
+    cout << MatrixXf::Identity(6,6) << endl;
 }

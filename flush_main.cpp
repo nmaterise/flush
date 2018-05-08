@@ -61,6 +61,7 @@ void outputFPlotData(string filename, ArrayXXf& FdataList) {
     return;
 }
 
+/*
 void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int listLength, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
@@ -141,17 +142,18 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
     }
     return;
 }
+*/
 
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    MatrixXcd I, rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
-    Matrix2cd eye, s0, s1; 
-    Matrix3cd eyye, ss0, ss1, ss2; 
-    eye = Matrix2cd::Identity(); eyye = Matrix3cd::Identity();
-    s0 << 1, 0, 0, 0; ss0 << 1, 0, 0, 0, 0, 0, 0, 0, 0;
-    s1 << 0, 0, 0, 1; ss1 << 0, 0, 0, 0, 1, 0, 0, 0, 0;
-    ss2 << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+    // MatrixXcd I, rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
+    // Matrix2cd eye, s0, s1; 
+    // Matrix3cd eyye, ss0, ss1, ss2; 
+    // eye = Matrix2cd::Identity(); eyye = Matrix3cd::Identity();
+    // s0 << 1, 0, 0, 0; ss0 << 1, 0, 0, 0, 0, 0, 0, 0, 0;
+    // s1 << 0, 0, 0, 1; ss1 << 0, 0, 0, 0, 1, 0, 0, 0, 0;
+    // ss2 << 0, 0, 0, 0, 0, 0, 0, 0, 1;
     rho00 = kroneckerProduct(ss0, s0);
     rho01 = kroneckerProduct(ss0, s1);
     rho10 = kroneckerProduct(ss1, s0);

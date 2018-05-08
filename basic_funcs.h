@@ -18,10 +18,10 @@ using namespace Eigen;
 class basic_funcs {
     public:
         // Default Constructor
-        basic_funcs();
+        // basic_funcs();
 
         // Overload Constructor
-        basic_funcs(float, float);
+        basic_funcs(int, float, float);
 
         // Destructor
         ~basic_funcs();
@@ -32,8 +32,10 @@ class basic_funcs {
 
         // System functions
         float pulse(float, int, ArrayXf&, int);
-        inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        // inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        // inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        inline void lindbladME(float*, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        inline void lindbladRK4(float*, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, ArrayXf&, ArrayXXf&, int, int, bool);
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
 
@@ -44,10 +46,10 @@ class basic_funcs {
         
     private:
         // Member Variables
-        Matrix2cd a; 
-        Matrix3cd aa; 
-        MatrixXcd ap, apd, as, asd, HX, HY, HP;
+        Matrix2cd a, s0, s1; 
+        Matrix3cd aa, ss0, ss1, ss2;
         float collapseOn, collapseOff;
+        int Hilbert_space, num_states;
 };
 
 #endif // BASIC_FUNCS_H
