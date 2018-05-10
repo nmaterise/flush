@@ -1,6 +1,6 @@
 #include "single_qubit.h"
 
-single_qubit::single_qubit() {
+// single_qubit::single_qubit() {
 //     eye = Matrix2cd::Zero();
 //     eyye = Matrix3cd::Zero();
 //     I = MatrixXcd::Zero(6, 6);
@@ -11,14 +11,34 @@ single_qubit::single_qubit() {
 //     HP = MatrixXcd::Zero(6, 6);
 
 //     collapseOn = 0.0; collapseOff = 0.0;
-}
+// }
 
-single_qubit::single_qubit(int N) {
+single_qubit::single_qubit(MatrixXcd tgt, MatrixXcd cst) {
+    rho00 = kroneckerProduct(ss0, s0);
+    rho01 = kroneckerProduct(ss0, s1);
+    rho10 = kroneckerProduct(ss1, s0);
+    rho11 = kroneckerProduct(ss1, s1);
+    rho20 = kroneckerProduct(ss2, s0);
+    rho21 = kroneckerProduct(ss2, s1);
+    ap = kroneckerProduct(aa, eye); apd = ap.adjoint();
+    as = kroneckerProduct(eyye, a); asd = as.adjoint();
+    a_ops = {ap, apd, as, asd}
+    HX = apd*asd + ap*as; HY = IM*(apd*asd - ap*as);
+    HP = -0.1*apd*apd*ap*ap;
 
+    target = tgt; currentState = cst;
 }
 
 single_qubit::~single_qubit() {
 
+}
+
+MatrixXcd single_qubit::getTarget() const {
+    return target;
+}
+
+MatrixXcd single_qubit::getCurrentState() const {
+    return currentState;
 }
 
 void single_qubit::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int listLength, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
@@ -29,7 +49,7 @@ void single_qubit::optimizePulse(float tp, float dt, int maxIt, float dc, float 
 
     basic_funcs bf(c1, c2);
     
-    bf.getFidelity(cx, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+    bf.getFidelity(a_ops, cx, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
     F = fidelities(0);
     cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
     while(it <  maxIt && (1 - F) > acc) {
@@ -41,13 +61,13 @@ void single_qubit::optimizePulse(float tp, float dt, int maxIt, float dc, float 
             ArrayXf diff_vec(Nmax);
             diff_vec.setZero();
             for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
-            bf.getFidelity(cx + eps*diff_vec, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+            bf.getFidelity(a_ops, cx + eps*diff_vec, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
             dFx(i) = fidelities(0) - F;
-            bf.getFidelity(cx, cy + eps*diff_vec, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+            bf.getFidelity(a_ops, cx, cy + eps*diff_vec, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
             dFy(i) = fidelities(0) - F;
         }
         cx += dFx; cy += dFy;
-        bf.getFidelity(cx, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+        bf.getFidelity(a_ops, cx, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
         F = fidelities(0);
         it++;
     }

@@ -17,15 +17,17 @@ using namespace Eigen;
 class single_qubit : public basic_funcs {
     public:
         // Default Constructor
-        single_qubit();
+        // single_qubit();
 
         // Overload Constructor
-        // single_qubit(float, float);
+        single_qubit(MatrixXcd, MatrixXcd);
 
         // Destructor
         ~single_qubit();
 
         // Accessor Functions
+        MatrixXcd getTarget() const;
+        MatrixXcd getCurrentState() const;
 
         // System functions
         void optimizePulse(float, float, int, float, float, ArrayXf&, ArrayXf&, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
@@ -34,11 +36,10 @@ class single_qubit : public basic_funcs {
         
     private:
         // Member Variables
-        MatrixXcd rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
-        Matrix2cd s0, s1; 
-        Matrix3cd ss0, ss1, ss2;
-        MatrixXcd ap, apd, as, asd, HX, HY, HP;
-        float collapseOn, collapseOff;
+        MatrixXcd rho00, rho01, rho10, rho11, rho2N, rho20, rho21,
+                  ap, apd, as, asd, HX, HY, HP;
+        
+        MatrixXcd target, currentState;
 };
 
 #endif

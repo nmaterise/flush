@@ -21,7 +21,7 @@ class basic_funcs {
         // basic_funcs();
 
         // Overload Constructor
-        basic_funcs(int, float, float);
+        basic_funcs(int, int, float, float);
 
         // Destructor
         ~basic_funcs();
@@ -29,25 +29,27 @@ class basic_funcs {
         // Accessor Functions
         float getColOn() const;
         float getColOff() const;
+        int getHilbertSpace() const;
+        int getNumStates() const;
 
         // System functions
         float pulse(float, int, ArrayXf&, int);
         // inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         // inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        inline void lindbladME(float*, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        inline void lindbladRK4(float*, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, ArrayXf&, ArrayXXf&, int, int, bool);
-        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
+        inline void lindbladME(float*, MatrixXcd*, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        inline void lindbladRK4(float*, MatrixXcd*, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        void getFidelity(MatrixXcd*, ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, ArrayXf&, ArrayXXf&, int, int, bool);
+        void evolveState(float, int, MatrixXcd*, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
-        Matrix2cd eye;
-        Matrix3cd eyye;
+        Matrix2cd a, eye, s0, s1;
+        Matrix3cd aa, eyye ss0, ss1, ss2;
         MatrixXcd I;
         
     private:
         // Member Variables
-        Matrix2cd a, s0, s1; 
-        Matrix3cd aa, ss0, ss1, ss2;
+        // Matrix2cd a, s0, s1; 
+        // Matrix3cd aa, ss0, ss1, ss2;
         float collapseOn, collapseOff;
         int Hilbert_space, num_states;
 };
