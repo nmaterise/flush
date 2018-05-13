@@ -84,7 +84,7 @@ inline void basic_funcs::lindbladRK4(float* c_ops, MatrixXcd *a_ops, float step,
     return;
 }
 
-void basic_funcs::getFidelity(MatrixXcd *a_ops, ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, ArrayXf& fidelities, ArrayXXf& dataList, int listLength, int numFidelities, bool checking_min) {
+void basic_funcs::getFidelity(MatrixXcd *a_ops, MatrixXcd *H_ops, ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, ArrayXf& fidelities, ArrayXXf& dataList, int listLength, int numFidelities, bool checking_min) {
     MatrixXcd currentState1, currentState2, H;
     float F;//, F1, F2, F3;
     int Nmax, Findex;
@@ -93,7 +93,8 @@ void basic_funcs::getFidelity(MatrixXcd *a_ops, ArrayXf cx, ArrayXf cy, int tp, 
     float c_ops[] = {collapseOn, collapseOff};
     float t = dt;
     for(int i = 0; i < listLength; i++) {
-        H = HP + pulse(t, tp, cx, Nmax)*HX + pulse(t, tp, cy, Nmax)*HY;
+        H = H_ops[0] + pulse(t, tp, cx, Nmax)*H_ops[1] + pulse(t, tp, cy, Nmax)*H_ops[2];
+        // H = HP + pulse(t, tp, cx, Nmax)*HX + pulse(t, tp, cy, Nmax)*HY;
         // lindbladRK4(collapseOn, collapseOff, dt, currentState1, H, currentState1);
         // lindbladRK4(collapseOn, collapseOff, dt, currentState2, H, currentState2);
         lindbladRK4(c_ops, a_ops, dt, currentState1, H, currentState1);

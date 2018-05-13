@@ -43,7 +43,7 @@ class basic_funcs {
 
         // Member Variables
         Matrix2cd a, eye, s0, s1;
-        Matrix3cd aa, eyye ss0, ss1, ss2;
+        Matrix3cd aa, eyye, ss0, ss1, ss2;
         MatrixXcd I;
         
     private:
