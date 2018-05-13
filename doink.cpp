@@ -7,7 +7,7 @@ using namespace Eigen;
 class parentClass {
     public:
         parentClass();
-        // parentClass(int, int);
+        parentClass(int, int);
         ~parentClass();
 
         MatrixXf Hamiltonian(int);
@@ -18,7 +18,11 @@ class parentClass {
 };
 
 parentClass::parentClass() {
-    cout << "Constructed Parent Class!" << endl;
+    cout << "Default constructor for Parent Class!" << endl;
+}
+
+parentClass::parentClass(int num1, int num2) {
+    cout << "Overload constructor for Parent Class with arguments:\n" << num1 << ", " << num2 << endl;
 }
 
 parentClass::~parentClass() {
@@ -38,14 +42,21 @@ void parentClass::doSomething(float input, MatrixXf& H) {
 class childClass : public parentClass {
     public:
         childClass();
+        childClass(float, int, int);
+        // childClass() : parentClass() {};
+        // childClass(float) : parentClass(2, 4) { };
         ~childClass();
 
         MatrixXf Hamiltonian(int);
         void doElse(int, MatrixXf&);
 };
 
-childClass::childClass() {
-    cout << "Constructed child Class!" << endl;
+childClass::childClass() : parentClass() {
+    cout << "Default constructor for child Class!" << endl;
+}
+
+childClass::childClass(float num1, int num2, int num3) : parentClass(num2, num3) {
+    cout << "Overload constructor for child Class with argument:\n" << num1 << endl;
 }
 
 childClass::~childClass() {
@@ -61,11 +72,11 @@ void childClass::doElse(int k, MatrixXf& H) {
 }
 
 int main() {
-    // parentClass pc;
-    childClass cc;
+    // parentClass pc(1,2);
+    childClass cc(3.4, 7, 5);
 
-    MatrixXf H;
-    cc.doElse(6, H);
+    // MatrixXf H;
+    // cc.doElse(6, H);
 
-    cout << H << endl;
+    // cout << H << endl;
 }
