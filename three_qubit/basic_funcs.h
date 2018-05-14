@@ -23,10 +23,6 @@ class basic_funcs {
         // Destructor
         ~basic_funcs();
 
-        // Accessor Functions
-        float getColOn() const;
-        float getColOff() const;
-
         // System functions
         float pulse(float, int, ArrayXf&, int);
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
@@ -35,18 +31,18 @@ class basic_funcs {
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
-        Matrix2cd eye;
-        Matrix3cd eyye;
-        MatrixXcd I;
         
     private:
         // Member Variables
-        Matrix2cd a; 
-        Matrix3cd aa; 
+        Matrix2cd a, I, X, Y, Z;
+        MatrixXcd X1, X2, X3, Y1, Y2, Y3, Z1, Z2, Z3;
+                  X1S, X2S, X3S, Y1S, Y2S, Y3S, Z1S, Z2S, Z3S,
+                  HX1, HY1, HX2, HY2, HX3, HY3,
+                  HP, HS;
         MatrixXcd ap1, ap1d, as1, as1d,
                   ap2, ap2d, as2, as2d,
-                  ap3, ap3d, as3, as3d,
-                  HX, HY, HP;
+                  ap3, ap3d, as3, as3d;
+        //           HX, HY, HP;
         float collapseOn, collapseOff;
 };
 
