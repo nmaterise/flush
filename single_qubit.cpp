@@ -13,7 +13,7 @@
 //     collapseOn = 0.0; collapseOff = 0.0;
 // }
 
-single_qubit::single_qubit(MatrixXcd tgt, MatrixXcd cst) {
+single_qubit::single_qubit(MatrixXcd tgt, MatrixXcd cst, int NH, int N, float colOn, float colOff) : basic_funcs(NH, N, colOn, colOff) {
     rho00 = kroneckerProduct(ss0, s0);
     rho01 = kroneckerProduct(ss0, s1);
     rho10 = kroneckerProduct(ss1, s0);

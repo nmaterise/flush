@@ -34,6 +34,7 @@ class basic_funcs {
 
         // System functions
         float pulse(float, int, ArrayXf&, int);
+        MatrixXcd Hamiltonian(float, int, ArrayXf& cx, ArrayXf& cy, int, MatrixXcd*);
         // inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         // inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         inline void lindbladME(float*, MatrixXcd*, MatrixXcd&, MatrixXcd&, MatrixXcd&);

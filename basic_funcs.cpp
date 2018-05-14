@@ -49,6 +49,12 @@ float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
     return f;
 }
 
+MatrixXcd basic_funcs::Hamiltonian(float t, int tp, ArrayXf *c, int Nmax, MatrixXcd *H_ops) {
+    MatrixXcd H = H_ops[0];
+    for(int i = 1; i <= num_states; i++) H += pulse(t, tp, c[i - 1], Nmax)*H_ops[i];
+    return H;
+}
+
 /*
 inline void basic_funcs::lindbladME(float col1, float col2, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
     output = 2.0*IM*PI*(rho*H - H*rho) + col1*(ap*rho*apd - 0.5*(apd*ap*rho + rho*apd*ap)) + col2*(as*rho*asd - 0.5*(asd*as*rho + rho*asd*as));
@@ -86,6 +92,7 @@ inline void basic_funcs::lindbladRK4(float* c_ops, MatrixXcd *a_ops, float step,
 
 void basic_funcs::getFidelity(MatrixXcd *a_ops, MatrixXcd *H_ops, ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, ArrayXf& fidelities, ArrayXXf& dataList, int listLength, int numFidelities, bool checking_min) {
     MatrixXcd currentState1, currentState2, H;
+    ArrayXf c[num_states]
     float F;//, F1, F2, F3;
     int Nmax, Findex;
     Nmax = cx.size();
@@ -93,7 +100,7 @@ void basic_funcs::getFidelity(MatrixXcd *a_ops, MatrixXcd *H_ops, ArrayXf cx, Ar
     float c_ops[] = {collapseOn, collapseOff};
     float t = dt;
     for(int i = 0; i < listLength; i++) {
-        H = H_ops[0] + pulse(t, tp, cx, Nmax)*H_ops[1] + pulse(t, tp, cy, Nmax)*H_ops[2];
+        H = Hamiltonian(t, tp, c, Nmax, H_ops);
         // H = HP + pulse(t, tp, cx, Nmax)*HX + pulse(t, tp, cy, Nmax)*HY;
         // lindbladRK4(collapseOn, collapseOff, dt, currentState1, H, currentState1);
         // lindbladRK4(collapseOn, collapseOff, dt, currentState2, H, currentState2);

@@ -20,7 +20,7 @@ class single_qubit : public basic_funcs {
         // single_qubit();
 
         // Overload Constructor
-        single_qubit(MatrixXcd, MatrixXcd);
+        single_qubit(MatrixXcd, MatrixXcd, int, int, float, float);
 
         // Destructor
         ~single_qubit();
