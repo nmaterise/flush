@@ -13,41 +13,6 @@
 using namespace std;
 using namespace Eigen;
 
-void mathematica_outputPlotData(string filename, int listLength, ArrayXXf& dataList) {
-    ofstream fout;
-    fout.open(filename.c_str());
-    fout << "{";
-    for(int i = 1; i < dataList.rows(); i++) {
-        fout << "{{0,0},";
-        for(int j = 0; j < listLength; j++) {
-            if(j == (listLength - 1)) fout << "{" << dataList(0, j) << "," << dataList(i, j) << "}";
-            else fout << "{" << dataList(0, j) << "," << dataList(i, j) << "},";
-        }
-        if(i == dataList.rows() - 1) fout << "}";
-        else fout << "},\n";
-    }
-    fout << "};\n";
-    fout.close();
-    return;
-}
-
-void mathematica_outputPulseData(string filename, ArrayXf& cx, ArrayXf& cy) {
-    ofstream fout;
-    fout.open(filename.c_str());
-    fout << "{{";
-    for(int i = 0; i < cx.size(); i++) {
-        if(i == cx.size() - 1) fout << cx[i] << "},{\n";
-        else fout << cx[i] << ",";
-    }
-    for(int i = 0; i < cy.size(); i++) {
-        if(i == cy.size() - 1) fout << cy[i] << "}\n";
-        else fout << cy[i] << ",";
-    }
-    fout << "};\n";
-    fout.close();
-    return;
-}
-
 void outputFPlotData(string filename, ArrayXXf& FdataList) {
     ofstream fout;
     fout.open(filename.c_str());
@@ -147,28 +112,24 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    MatrixXcd I, rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
-    Matrix2cd eye, s0, s1; 
-    Matrix3cd eyye, ss0, ss1, ss2; 
-    eye = Matrix2cd::Identity(); eyye = Matrix3cd::Identity();
-    s0 << 1, 0, 0, 0; ss0 << 1, 0, 0, 0, 0, 0, 0, 0, 0;
-    s1 << 0, 0, 0, 1; ss1 << 0, 0, 0, 0, 1, 0, 0, 0, 0;
-    ss2 << 0, 0, 0, 0, 0, 0, 0, 0, 1;
-    rho00 = kroneckerProduct(ss0, s0);
-    rho01 = kroneckerProduct(ss0, s1);
-    rho10 = kroneckerProduct(ss1, s0);
-    rho11 = kroneckerProduct(ss1, s1);
-    rho20 = kroneckerProduct(ss2, s0);
-    rho21 = kroneckerProduct(ss2, s1);
-    rho2N = kroneckerProduct(ss2, eye);
-    MatrixXcd rhoList[6] = {rho00, rho01, rho10, rho11, rho20, rho21};
-    target = kroneckerProduct(ss1, eye);
-    I = kroneckerProduct(eyye, eye);
-    currentState = rho10;
-    ArrayXf cx(20), cy(20); cx.setZero(); cy.setZero(); cx[0] = 0.02;
     int listLength, numFidelities, tp, tf;
     float dt, dc, acc, c1, c2;
-    bool checking_min;
+    bool checking_min
+    MatrixXcd rho000, rho111, 
+              rho100, rho010, rho001, rho110, rho101, rho011;
+    Matrix2cd I, s0, s1;
+
+    I = Matrix2cd::Identity();
+    s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
+    rho000 = kroneckerProduct(s0,s0,s0,I,I,I); rho111 = kroneckerProduct(s1,s1,s1,I,I,I);
+    rho100 = kroneckerProduct(s1,s0,s0,I,I,I); rho010 = kroneckerProduct(s0,s1,s0,I,I,I);
+    rho001 = kroneckerProduct(s0,s0,s1,I,I,I); rho110 = kroneckerProduct(s1,s1,s0,I,I,I);
+    rho101 = kroneckerProduct(s1,s0,s1,I,I,I); rho011 = kroneckerProduct(s0,s1,s1,I,I,I);
+    MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
+    // ArrayXf cx(20), cy(20); cx.setZero(); cy.setZero();
+    ArrayXf pulse_c[3];
+    pulse_c[0].setZero(20); pulse_c[1].setZero(20); pulse_c[2].setZero(20);
+    // cx[0] = 0.02;;
     tp = 20; tf = 40; numFidelities = 2; checking_min = 0;
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
     if(checking_min) evolve_file += "_min";
@@ -185,19 +146,38 @@ int main() {
     cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
     cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
 
-    ArrayXXf prob00to10[5];
-    ArrayXf optVal;
-    optVal.setZero(5);
     time(&t0);
-    
-    for(int k = 1; k < 6; k++) {
-        optimizeFlushCycle(10, k, 1, 13, rhoList, cx, cy, prob00to10[k - 1]);
-        optVal[k - 1] = prob00to10[k - 1].rowwise().maxCoeff()(1);
-    }
+
+    float collapseOn, collapseOff, J, F, pulse_c[];
+    int t_cyc[], Ohm, listLength;
+    ArrayXXf dataList;
+    MatrixXcd finalState;
+
+    collapseOn = 1e-3/(k*10); collapseOff = 0.03; J = 0.02;
+    t_cyc = {tp, tf};
+    pulse_c = {c1, c2, c3};
+    Ohm = 0; listLength = tp/dt + 1;
+    dataList = ArrayXXf::Zero(2, listLength)
+
+    basic_funcs bf(collapseOn, collapseOff, J);
+
+    bf.evolveState(dt, 3, rho000, rho000, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState)
+    outputFPlotData(evolve_file, dataList);
+    cout << finalState << endl;
+
+    // void outputFPlotData(string filename, ArrayXXf& FdataList)
+
+    // ArrayXXf prob00to10[5];
+    // ArrayXf optVal;
+    // optVal.setZero(5);    
+    // for(int k = 1; k < 6; k++) {
+    //     optimizeFlushCycle(10, k, 1, 13, rhoList, cx, cy, prob00to10[k - 1]);
+    //     optVal[k - 1] = prob00to10[k - 1].rowwise().maxCoeff()(1);
+    // }
     
     time(&t1);
 
-    for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
+    // for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
     cout << "TIME TO RUN :: " << difftime(t1, t0) << endl;
     
     return 0;

@@ -1,8 +1,8 @@
 #include <iostream>
-// #include <Eigen>
+#include <Eigen>
 
 using namespace std;
-// using namespace Eigen;
+using namespace Eigen;
 
 class parentClass {
     public:
@@ -58,8 +58,10 @@ int main() {
     childClass cc(3.4, 7, 5);
     int size = 6;
     int list[size] = {0, 0, 1};
-
-    cc.somefunc(list, size);
+    ArrayXf test[2];
+    test[0].setZero(5); test[1].setZero(3);
+    cout << test[0] << endl << test[1] << endl;
+    // cc.somefunc(list, size);
     // MatrixXf H;
     // cc.doElse(6, H);
 

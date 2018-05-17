@@ -27,7 +27,7 @@ class basic_funcs {
         float pulse(float, int, ArrayXf&, int);
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, ArrayXf&, ArrayXXf&, int, int, bool);
+        // void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
@@ -37,12 +37,8 @@ class basic_funcs {
         Matrix2cd a, I, X, Y, Z;
         MatrixXcd X1, X2, X3, Y1, Y2, Y3, Z1, Z2, Z3;
                   X1S, X2S, X3S, Y1S, Y2S, Y3S, Z1S, Z2S, Z3S,
-                  HX1, HY1, HX2, HY2, HX3, HY3,
+                  as1, as1d, as2, as2d, as3, as3d,
                   HP, HS;
-        MatrixXcd ap1, ap1d, as1, as1d,
-                  ap2, ap2d, as2, as2d,
-                  ap3, ap3d, as3, as3d;
-        //           HX, HY, HP;
         float collapseOn, collapseOff;
 };
 
