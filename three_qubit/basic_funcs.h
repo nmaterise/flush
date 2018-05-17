@@ -3,8 +3,6 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <unsupported/Eigen/KroneckerProduct>
-// #include <Eigen>
-// #include <KroneckerProduct>
 
 using namespace std;
 using namespace Eigen;
@@ -24,11 +22,14 @@ class basic_funcs {
         ~basic_funcs();
 
         // System functions
+        MatrixXcd tensor(MatrixXcd*, int);
         float pulse(float, int, ArrayXf&, int);
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         // void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
-        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
+        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
+
+        // void basic_funcs::evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&)
 
         // Member Variables
         

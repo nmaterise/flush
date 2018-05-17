@@ -2,24 +2,24 @@
 
 basic_funcs::basic_funcs(float collapseOn, float collapseOff, float J) {
     int num_ops = 6;
-    Matrix2cd X1List[num_ops], Y1List[num_ops], Z1List[num_ops], X1SList[num_ops], Y1SList[num_ops], Z1SList[num_ops],
-              X2List[num_ops], Y2List[num_ops], Z2List[num_ops], X2SList[num_ops], Y2SList[num_ops], Z2SList[num_ops],
-              X3List[num_ops], Y3List[num_ops], Z3List[num_ops], X3SList[num_ops], Y3SList[num_ops], Z3SList[num_ops],
-              a1List[num_ops], a2List[num_ops], a3List[num_ops], a1dList[num_ops], a2dList[num_ops], a3dList[num_ops];
+    // Matrix2cd X1List[], Y1List[], Z1List[], X1SList[], Y1SList[], Z1SList[],
+    //           X2List[], Y2List[], Z2List[], X2SList[], Y2SList[], Z2SList[],
+    //           X3List[], Y3List[], Z3List[], X3SList[], Y3SList[], Z3SList[],
+    //           a1List[], a2List[], a3List[], a1dList[], a2dList[], a3dList[];
     I = Matrix2cd::Identity();
     a << 0, 1, 0, 0; X << 0, 1, 1, 0; Z << 1, 0, 0, -1; Y << 0, IM, -IM, 0;
-    X1List = {X,I,I,I,I,I}; X1SList = {I,I,I,X,I,I};
-    Y1List = {Y,I,I,I,I,I}; Y1SList = {I,I,I,Y,I,I};
-    Z1List = {Z,I,I,I,I,I}; Z1SList = {I,I,I,Z,I,I};
-    X2List = {I,X,I,I,I,I}; X2SList = {I,I,I,I,X,I};
-    Y2List = {I,Y,I,I,I,I}; Y2SList = {I,I,I,I,Y,I};
-    Z2List = {I,Z,I,I,I,I}; Z2SList = {I,I,I,I,Z,I};
-    X3List = {I,I,X,I,I,I}; X3SList = {I,I,I,I,I,X};
-    Y3List = {I,I,Y,I,I,I}; Y3SList = {I,I,I,I,I,Y};
-    Z3List = {I,I,Z,I,I,I}; Z3SList = {I,I,I,I,I,Z};
-    a1List = {I,I,I,a,I,I};
-    a2List = {I,I,I,I,a,I};
-    a3List = {I,I,I,I,I,a};
+    MatrixXcd X1List[] = {X,I,I,I,I,I}; MatrixXcd X1SList[] = {I,I,I,X,I,I};
+    MatrixXcd Y1List[] = {Y,I,I,I,I,I}; MatrixXcd Y1SList[] = {I,I,I,Y,I,I};
+    MatrixXcd Z1List[] = {Z,I,I,I,I,I}; MatrixXcd Z1SList[] = {I,I,I,Z,I,I};
+    MatrixXcd X2List[] = {I,X,I,I,I,I}; MatrixXcd X2SList[] = {I,I,I,I,X,I};
+    MatrixXcd Y2List[] = {I,Y,I,I,I,I}; MatrixXcd Y2SList[] = {I,I,I,I,Y,I};
+    MatrixXcd Z2List[] = {I,Z,I,I,I,I}; MatrixXcd Z2SList[] = {I,I,I,I,Z,I};
+    MatrixXcd X3List[] = {I,I,X,I,I,I}; MatrixXcd X3SList[] = {I,I,I,I,I,X};
+    MatrixXcd Y3List[] = {I,I,Y,I,I,I}; MatrixXcd Y3SList[] = {I,I,I,I,I,Y};
+    MatrixXcd Z3List[] = {I,I,Z,I,I,I}; MatrixXcd Z3SList[] = {I,I,I,I,I,Z};
+    MatrixXcd a1List[] = {I,I,I,a,I,I};
+    MatrixXcd a2List[] = {I,I,I,I,a,I};
+    MatrixXcd a3List[] = {I,I,I,I,I,a};
 
     X1 = tensor(X1List, num_ops); X1S = tensor(X1SList, num_ops);
     Y1 = tensor(Y1List, num_ops); Y1S = tensor(Y1SList, num_ops);
@@ -48,7 +48,7 @@ MatrixXcd basic_funcs::tensor(MatrixXcd* matrix_list, int num_matrices) {
     return output;
 }
 
-float basic_funcs::pulse(float t, int tp, ArrayXf c, int Nmax) {
+float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
     float f = 0;
     for(int n = 1; n <= Nmax; n++) {
         f += c[n - 1]*sin(n*PI*t/tp);
@@ -58,10 +58,9 @@ float basic_funcs::pulse(float t, int tp, ArrayXf c, int Nmax) {
 
 inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
     output = 2.0*IM*PI*(rho*H - H*rho) 
-             + cp*(X1*rho*X1 - 0.5*(X1*rho + rho*X1)) + cs*(as1*rho*as1d - 0.5*(as1d*as1*rho + rho*as1d*as1))
-             + cp*(X2*rho*X2 - 0.5*(X2*rho + rho*X2)) + cs*(as2*rho*as2d - 0.5*(as2d*as2*rho + rho*as2d*as2))
-             + cp*(X3*rho*X3 - 0.5*(X3*rho + rho*X3)) + cs*(as3*rho*as3d - 0.5*(as3d*as3*rho + rho*as3d*as3))
-    }
+             + cp*(X1*rho*X1 - 0.5*(X1*rho + rho*X1)) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
+             + cp*(X2*rho*X2 - 0.5*(X2*rho + rho*X2)) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
+             + cp*(X3*rho*X3 - 0.5*(X3*rho + rho*X3)) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));
     return;
 }
 
@@ -130,11 +129,11 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
                 tcycle = t_cyc[1]; collapse = collapseOff; c1.setZero(); c2.setZero(); c3.setZero();
             }
         } else {
-            tcycle = t_cyc[0]; collapse = collapseOn; c1 = cx; c2 = cy;
+            tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; c3 = pulse_c[2];
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {
-            H = HP
+            H = HP;
             // if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX + pulse(t*dt, tcycle, c2, Nmax)*HY;
             // else H = HP + Ohm*HX;
             dataList(0, dataIndex) = tcurrent + t*dt;
