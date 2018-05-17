@@ -18,7 +18,7 @@ using namespace Eigen;
 class basic_funcs {
     public:
         // Overload Constructor
-        basic_funcs(float, float);
+        basic_funcs(float, float, float);
 
         // Destructor
         ~basic_funcs();
@@ -35,9 +35,9 @@ class basic_funcs {
     private:
         // Member Variables
         Matrix2cd a, I, X, Y, Z;
-        MatrixXcd X1, X2, X3, Y1, Y2, Y3, Z1, Z2, Z3;
+        MatrixXcd X1, X2, X3, Y1, Y2, Y3, Z1, Z2, Z3,
                   X1S, X2S, X3S, Y1S, Y2S, Y3S, Z1S, Z2S, Z3S,
-                  as1, as1d, as2, as2d, as3, as3d,
+                  a1, a1d, a2, a2d, a3, a3d,
                   HP, HS;
         float collapseOn, collapseOff;
 };

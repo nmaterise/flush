@@ -1,5 +1,7 @@
+#include <cstdarg>
 #include <iostream>
 #include <Eigen>
+#include <KroneckerProduct>
 
 using namespace std;
 using namespace Eigen;
@@ -53,17 +55,23 @@ childClass::somefunc(int* listOfInts, int sizeOfList) {
     for(int i = 0; i < sizeOfList; i++) cout << ++listOfInts[i] << endl;
 }
 
+// ******************************* MAIN ***********************************
+
+MatrixXf tensor(MatrixXf* matrix_list, int num_matrices) {
+    MatrixXf output = kroneckerProduct(matrix_list[0], matrix_list[1]).eval();
+    for(int i = 2; i < num_matrices; i++) output = kroneckerProduct(output, matrix_list[i]).eval();
+    return output;
+}
+
 int main() {
     // parentClass pc(1,2);
-    childClass cc(3.4, 7, 5);
-    int size = 6;
-    int list[size] = {0, 0, 1};
-    ArrayXf test[2];
-    test[0].setZero(5); test[1].setZero(3);
-    cout << test[0] << endl << test[1] << endl;
-    // cc.somefunc(list, size);
-    // MatrixXf H;
-    // cc.doElse(6, H);
+    // childClass cc(3.4, 7, 5);
+
+    float test[] = {1,2,3};
+
+    // test = {1,2,3};
+
+    cout << test[1] << endl;
 
     // cout << H << endl;
     return 0;

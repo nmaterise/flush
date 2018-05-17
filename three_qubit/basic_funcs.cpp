@@ -1,20 +1,38 @@
 #include "basic_funcs.h"
 
 basic_funcs::basic_funcs(float collapseOn, float collapseOff, float J) {
+    int num_ops = 6;
+    Matrix2cd X1List[num_ops], Y1List[num_ops], Z1List[num_ops], X1SList[num_ops], Y1SList[num_ops], Z1SList[num_ops],
+              X2List[num_ops], Y2List[num_ops], Z2List[num_ops], X2SList[num_ops], Y2SList[num_ops], Z2SList[num_ops],
+              X3List[num_ops], Y3List[num_ops], Z3List[num_ops], X3SList[num_ops], Y3SList[num_ops], Z3SList[num_ops],
+              a1List[num_ops], a2List[num_ops], a3List[num_ops], a1dList[num_ops], a2dList[num_ops], a3dList[num_ops];
     I = Matrix2cd::Identity();
-    a << 0, 1, 0, 0; X << 0, 1, 1, 0; Z << 1, 0, 0, -1; Y = 0, IM, -IM, 0;
-    X1 = kroneckerProduct(X,I,I,I,I,I); X1S = kroneckerProduct(I,I,I,X,I,I);
-    Y1 = kroneckerProduct(Y,I,I,I,I,I); Y1S = kroneckerProduct(I,I,I,Y,I,I);
-    Z1 = kroneckerProduct(Z,I,I,I,I,I); Z1S = kroneckerProduct(I,I,I,Z,I,I);
-    X2 = kroneckerProduct(I,X,I,I,I,I); X2S = kroneckerProduct(I,I,I,I,X,I);
-    Y2 = kroneckerProduct(I,Y,I,I,I,I); Y2S = kroneckerProduct(I,I,I,I,Y,I);
-    Z2 = kroneckerProduct(I,Z,I,I,I,I); Z2S = kroneckerProduct(I,I,I,I,Z,I);
-    X3 = kroneckerProduct(I,I,X,I,I,I); X3S = kroneckerProduct(I,I,I,I,I,X);
-    Y3 = kroneckerProduct(I,I,Y,I,I,I); Y3S = kroneckerProduct(I,I,I,I,I,Y);
-    Z3 = kroneckerProduct(I,I,Z,I,I,I); Z3S = kroneckerProduct(I,I,I,I,I,Z);
-    as1 = kroneckerProduct(I,I,I,a,I,I); as1d = as1.adjoint();
-    as2 = kroneckerProduct(I,I,I,I,a,I); as2d = as2.adjoint();
-    as3 = kroneckerProduct(I,I,I,I,I,a); as3d = as3.adjoint();
+    a << 0, 1, 0, 0; X << 0, 1, 1, 0; Z << 1, 0, 0, -1; Y << 0, IM, -IM, 0;
+    X1List = {X,I,I,I,I,I}; X1SList = {I,I,I,X,I,I};
+    Y1List = {Y,I,I,I,I,I}; Y1SList = {I,I,I,Y,I,I};
+    Z1List = {Z,I,I,I,I,I}; Z1SList = {I,I,I,Z,I,I};
+    X2List = {I,X,I,I,I,I}; X2SList = {I,I,I,I,X,I};
+    Y2List = {I,Y,I,I,I,I}; Y2SList = {I,I,I,I,Y,I};
+    Z2List = {I,Z,I,I,I,I}; Z2SList = {I,I,I,I,Z,I};
+    X3List = {I,I,X,I,I,I}; X3SList = {I,I,I,I,I,X};
+    Y3List = {I,I,Y,I,I,I}; Y3SList = {I,I,I,I,I,Y};
+    Z3List = {I,I,Z,I,I,I}; Z3SList = {I,I,I,I,I,Z};
+    a1List = {I,I,I,a,I,I};
+    a2List = {I,I,I,I,a,I};
+    a3List = {I,I,I,I,I,a};
+
+    X1 = tensor(X1List, num_ops); X1S = tensor(X1SList, num_ops);
+    Y1 = tensor(Y1List, num_ops); Y1S = tensor(Y1SList, num_ops);
+    Z1 = tensor(Z1List, num_ops); Z1S = tensor(Z1SList, num_ops);
+    X2 = tensor(X2List, num_ops); X2S = tensor(X2SList, num_ops);
+    Y2 = tensor(Y2List, num_ops); Y2S = tensor(Y2SList, num_ops);
+    Z2 = tensor(Z2List, num_ops); Z2S = tensor(Z2SList, num_ops);
+    X3 = tensor(X3List, num_ops); X3S = tensor(X3SList, num_ops);
+    Y3 = tensor(Y3List, num_ops); Y3S = tensor(Y3SList, num_ops);
+    Z3 = tensor(Z3List, num_ops); Z3S = tensor(Z3SList, num_ops);
+    a1 = tensor(a1List, num_ops); a1d = a1.adjoint();
+    a2 = tensor(a2List, num_ops); a2d = a2.adjoint();
+    a3 = tensor(a3List, num_ops); a3d = a3.adjoint();
 
     HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
     HS = 2*J*(Z1S + Z2S + Z3S);
@@ -22,6 +40,12 @@ basic_funcs::basic_funcs(float collapseOn, float collapseOff, float J) {
 
 basic_funcs::~basic_funcs() {
 
+}
+
+MatrixXcd basic_funcs::tensor(MatrixXcd* matrix_list, int num_matrices) {
+    MatrixXcd output = kroneckerProduct(matrix_list[0], matrix_list[1]).eval();
+    for(int i = 2; i < num_matrices; i++) output = kroneckerProduct(output, matrix_list[i]).eval();
+    return output;
 }
 
 float basic_funcs::pulse(float t, int tp, ArrayXf c, int Nmax) {
