@@ -15,6 +15,9 @@ using namespace Eigen;
 
 class basic_funcs {
     public:
+        // Default Constructor
+        basic_funcs();
+
         // Overload Constructor
         basic_funcs(float, float, float);
 
@@ -28,8 +31,6 @@ class basic_funcs {
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         // void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
-
-        // void basic_funcs::evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&)
 
         // Member Variables
         

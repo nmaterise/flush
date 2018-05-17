@@ -1,10 +1,10 @@
 #include <cstdarg>
 #include <iostream>
-#include <Eigen>
-#include <KroneckerProduct>
+// #include <Eigen>
+// #include <KroneckerProduct>
 
 using namespace std;
-using namespace Eigen;
+// using namespace Eigen;
 
 class parentClass {
     public:
@@ -57,21 +57,25 @@ childClass::somefunc(int* listOfInts, int sizeOfList) {
 
 // ******************************* MAIN ***********************************
 
-MatrixXf tensor(MatrixXf* matrix_list, int num_matrices) {
-    MatrixXf output = kroneckerProduct(matrix_list[0], matrix_list[1]).eval();
-    for(int i = 2; i < num_matrices; i++) output = kroneckerProduct(output, matrix_list[i]).eval();
-    return output;
+// MatrixXf tensor(MatrixXf* matrix_list, int num_matrices) {
+//     MatrixXf output = kroneckerProduct(matrix_list[0], matrix_list[1]).eval();
+//     for(int i = 2; i < num_matrices; i++) output = kroneckerProduct(output, matrix_list[i]).eval();
+//     return output;
+// }
+
+int anotherOne(int num1, childClass& cc) {
+    int listOfInts[] = {num1, num1, num1};
+    cc.somefunc(listOfInts, 3);
+    return num1;
 }
 
 int main() {
     // parentClass pc(1,2);
-    // childClass cc(3.4, 7, 5);
+    childClass cc(3.4, 7, 5);
+    int num;
 
-    float test[] = {1,2,3};
-
-    // test = {1,2,3};
-
-    cout << test[1] << endl;
+    num = anotherOne(10, cc);
+    cout << num << endl;
 
     // cout << H << endl;
     return 0;

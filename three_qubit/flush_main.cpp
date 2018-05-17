@@ -25,7 +25,7 @@ void outputFPlotData(string filename, ArrayXXf& FdataList) {
     fout.close();
     return;
 }
-
+/*
 void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int listLength, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
@@ -61,11 +61,11 @@ void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& 
     return;
 }
 
-void getMatrix(int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
+void getMatrix(basic_funcs& bf, int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
     float collapseOn, collapseOff;
     collapseOn = 1e-3/(k*10); collapseOff = 0.03;
 
-    basic_funcs bf(collapseOn, collapseOff);
+    // basic_funcs bf(collapseOn, collapseOff);
     
     int tp, tf, listLength;
     float dt = 0.1;
@@ -108,23 +108,29 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
     }
     return;
 }
-
+*/
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    int listLength, numFidelities, tp, tf;
-    float dt, dc, acc, c1, c2;
-    bool checking_min
-    MatrixXcd rho000, rho111, 
-              rho100, rho010, rho001, rho110, rho101, rho011;
+    int listLength, numFidelities, tp, tf, num_ops;
+    float dt, dc, acc;
+    bool checking_min;
     Matrix2cd I, s0, s1;
-
+    MatrixXcd ls000[] = {s0,s0,s0,I,I,I}; MatrixXcd ls111[] = {s1,s1,s1,I,I,I}; 
+    MatrixXcd ls100[] = {s1,s0,s0,I,I,I}; MatrixXcd ls010[] = {s0,s1,s0,I,I,I};
+    MatrixXcd ls001[] = {s0,s0,s1,I,I,I}; MatrixXcd ls110[] = {s1,s1,s0,I,I,I};
+    MatrixXcd ls101[] = {s1,s0,s1,I,I,I}; MatrixXcd ls011[] = {s0,s1,s1,I,I,I};
+    num_ops = 6;
     I = Matrix2cd::Identity();
     s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
-    rho000 = kroneckerProduct(s0,s0,s0,I,I,I); rho111 = kroneckerProduct(s1,s1,s1,I,I,I);
-    rho100 = kroneckerProduct(s1,s0,s0,I,I,I); rho010 = kroneckerProduct(s0,s1,s0,I,I,I);
-    rho001 = kroneckerProduct(s0,s0,s1,I,I,I); rho110 = kroneckerProduct(s1,s1,s0,I,I,I);
-    rho101 = kroneckerProduct(s1,s0,s1,I,I,I); rho011 = kroneckerProduct(s0,s1,s1,I,I,I);
+
+    basic_funcs bf;
+    rho000 = bf.tensor(ls000, num_ops); rho111 = bf.tensor(ls111, num_ops);
+    rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
+    rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
+    rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
+    delete bf;
+
     MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
     // ArrayXf cx(20), cy(20); cx.setZero(); cy.setZero();
     ArrayXf pulse_c[3];
@@ -152,13 +158,13 @@ int main() {
     ArrayXXf dataList;
     MatrixXcd finalState;
 
-    collapseOn = 1e-3/(k*10); collapseOff = 0.03; J = 0.02;
+    collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
+    basic_funcs bf(collapseOn, collapseOff, J);
+
     t_cyc = {tp, tf};
     // pulse_c = {c1, c2, c3};
     Ohm = 0; listLength = tp/dt + 1;
     dataList = ArrayXXf::Zero(2, listLength)
-
-    basic_funcs bf(collapseOn, collapseOff, J);
 
     bf.evolveState(dt, 3, rho000, rho000, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState)
     outputFPlotData(evolve_file, dataList);
@@ -181,4 +187,3 @@ int main() {
     
     return 0;
 }
-

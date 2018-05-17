@@ -1,11 +1,41 @@
 #include "basic_funcs.h"
 
+basic_funcs::basic_funcs() {
+    int num_ops = 6;
+    I = Matrix2cd::Identity();
+    a << 0, 1, 0, 0; X << 0, 1, 1, 0; Z << 1, 0, 0, -1; Y << 0, IM, -IM, 0;
+    MatrixXcd X1List[] = {X,I,I,I,I,I}; MatrixXcd X1SList[] = {I,I,I,X,I,I};
+    MatrixXcd Y1List[] = {Y,I,I,I,I,I}; MatrixXcd Y1SList[] = {I,I,I,Y,I,I};
+    MatrixXcd Z1List[] = {Z,I,I,I,I,I}; MatrixXcd Z1SList[] = {I,I,I,Z,I,I};
+    MatrixXcd X2List[] = {I,X,I,I,I,I}; MatrixXcd X2SList[] = {I,I,I,I,X,I};
+    MatrixXcd Y2List[] = {I,Y,I,I,I,I}; MatrixXcd Y2SList[] = {I,I,I,I,Y,I};
+    MatrixXcd Z2List[] = {I,Z,I,I,I,I}; MatrixXcd Z2SList[] = {I,I,I,I,Z,I};
+    MatrixXcd X3List[] = {I,I,X,I,I,I}; MatrixXcd X3SList[] = {I,I,I,I,I,X};
+    MatrixXcd Y3List[] = {I,I,Y,I,I,I}; MatrixXcd Y3SList[] = {I,I,I,I,I,Y};
+    MatrixXcd Z3List[] = {I,I,Z,I,I,I}; MatrixXcd Z3SList[] = {I,I,I,I,I,Z};
+    MatrixXcd a1List[] = {I,I,I,a,I,I};
+    MatrixXcd a2List[] = {I,I,I,I,a,I};
+    MatrixXcd a3List[] = {I,I,I,I,I,a};
+
+    X1 = tensor(X1List, num_ops); X1S = tensor(X1SList, num_ops);
+    Y1 = tensor(Y1List, num_ops); Y1S = tensor(Y1SList, num_ops);
+    Z1 = tensor(Z1List, num_ops); Z1S = tensor(Z1SList, num_ops);
+    X2 = tensor(X2List, num_ops); X2S = tensor(X2SList, num_ops);
+    Y2 = tensor(Y2List, num_ops); Y2S = tensor(Y2SList, num_ops);
+    Z2 = tensor(Z2List, num_ops); Z2S = tensor(Z2SList, num_ops);
+    X3 = tensor(X3List, num_ops); X3S = tensor(X3SList, num_ops);
+    Y3 = tensor(Y3List, num_ops); Y3S = tensor(Y3SList, num_ops);
+    Z3 = tensor(Z3List, num_ops); Z3S = tensor(Z3SList, num_ops);
+    a1 = tensor(a1List, num_ops); a1d = a1.adjoint();
+    a2 = tensor(a2List, num_ops); a2d = a2.adjoint();
+    a3 = tensor(a3List, num_ops); a3d = a3.adjoint();
+
+    HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
+    HS = 2*J*(Z1S + Z2S + Z3S);
+}
+
 basic_funcs::basic_funcs(float collapseOn, float collapseOff, float J) {
     int num_ops = 6;
-    // Matrix2cd X1List[], Y1List[], Z1List[], X1SList[], Y1SList[], Z1SList[],
-    //           X2List[], Y2List[], Z2List[], X2SList[], Y2SList[], Z2SList[],
-    //           X3List[], Y3List[], Z3List[], X3SList[], Y3SList[], Z3SList[],
-    //           a1List[], a2List[], a3List[], a1dList[], a2dList[], a3dList[];
     I = Matrix2cd::Identity();
     a << 0, 1, 0, 0; X << 0, 1, 1, 0; Z << 1, 0, 0, -1; Y << 0, IM, -IM, 0;
     MatrixXcd X1List[] = {X,I,I,I,I,I}; MatrixXcd X1SList[] = {I,I,I,X,I,I};
