@@ -16,7 +16,7 @@ using namespace Eigen;
 class basic_funcs {
     public:
         // Default Constructor
-        basic_funcs();
+        // basic_funcs();
 
         // Overload Constructor
         basic_funcs(float, float, float);

@@ -1,10 +1,10 @@
 #include <cstdarg>
 #include <iostream>
-// #include <Eigen>
+#include <Eigen>
 // #include <KroneckerProduct>
 
 using namespace std;
-// using namespace Eigen;
+using namespace Eigen;
 
 class parentClass {
     public:
@@ -70,12 +70,11 @@ int anotherOne(int num1, childClass& cc) {
 }
 
 int main() {
-    // parentClass pc(1,2);
-    childClass cc(3.4, 7, 5);
-    int num;
+    MatrixXcf mat;
 
-    num = anotherOne(10, cc);
-    cout << num << endl;
+    mat = MatrixXcf::Identity(3,3);
+
+    cout << mat << endl << mat.maxCoeff() << endl;
 
     // cout << H << endl;
     return 0;
