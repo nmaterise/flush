@@ -5,7 +5,6 @@
 #include <unsupported/Eigen/KroneckerProduct>
 // #include <Eigen>
 // #include <KroneckerProduct>
-// TESTING SYNCING
 
 #include "omp.h"
 #include "basic_funcs.h"
