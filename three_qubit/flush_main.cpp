@@ -141,6 +141,7 @@ int main() {
     // ArrayXXf dataList(numFidelities + 2, listLength), FdataList;
     // fidelities.setZero(); dataList.setZero();
     ArrayXXf dataList(2, listLength);
+    cout << "listlength ::  " << listLength << endl;
     dataList.setZero();
 
     basic_funcs bf(collapseOn, collapseOff, J);
@@ -170,7 +171,7 @@ int main() {
 
     bf.evolveState(dt, Ncycles, rho000, rho000, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
     outputFPlotData(evolve_file, dataList);
-    cout << finalState << endl;
+    // cout << finalState << endl;
 
     // void outputFPlotData(string filename, ArrayXXf& FdataList)
 
