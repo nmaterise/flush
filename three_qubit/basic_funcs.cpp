@@ -117,7 +117,7 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
     finalState = MatrixXcd::Zero(6,6);
     dataList(0, 0) = 0;
     dataList(1, 0) = (target*currentState.adjoint()).cwiseAbs().trace();
-    for(int i = 0; i < Ncycles; i++) {
+    for(int i = 0; i <= Ncycles; i++) {
         if(flush) {
             if(i%2 == 0) {
                 tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; c3 = pulse_c[2];
@@ -133,7 +133,8 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
             // if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX + pulse(t*dt, tcycle, c2, Nmax)*HY;
             // else H = HP + Ohm*HX;
             dataList(0, dataIndex) = tcurrent + t*dt;
-            dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
+            dataList(1, dataIndex) = 0;
+            // dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
             lindbladRK4(collapseOn, collapse, dt, currentState, H, currentState);
             dataIndex++;
         }

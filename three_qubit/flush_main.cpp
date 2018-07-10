@@ -135,13 +135,11 @@ int main() {
     dt = 0.1; dc = 0.0001; acc = 1e-5;
     listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
     collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
-    // collapseOn = 0; collapseOff = 0; J = 0.02;
 
     // ArrayXf fidelities(numFidelities + 1);
     // ArrayXXf dataList(numFidelities + 2, listLength), FdataList;
     // fidelities.setZero(); dataList.setZero();
     ArrayXXf dataList(2, listLength);
-    cout << "listlength ::  " << listLength << endl;
     dataList.setZero();
 
     basic_funcs bf(collapseOn, collapseOff, J);
@@ -151,14 +149,16 @@ int main() {
     rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
     rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
     
-    MatrixXcd zeroes = MatrixXcd::Zero(64,64);
-    cout << (zeroes == rho000) << endl;
+    // MatrixXcd zeroes = MatrixXcd::Zero(64,64);
+    // cout << (zeroes == rho000) << endl;
 
     evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
-    // evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
-    // if(checking_min) evolve_file += "_min";
-    // pulse_file = evolve_file + ".pls";
-    // evolve_file += ".dat";
+    /*
+    evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
+    if(checking_min) evolve_file += "_min";
+    pulse_file = evolve_file + ".pls";
+    evolve_file += ".dat";
+    */
 
     // cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
     // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
@@ -169,11 +169,11 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.evolveState(dt, Ncycles, rho000, rho000, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
+    MatrixXcd 
+
+    // bf.evolveState(dt, Ncycles, rho000, rho000, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
     outputFPlotData(evolve_file, dataList);
     // cout << finalState << endl;
-
-    // void outputFPlotData(string filename, ArrayXXf& FdataList)
 
     // ArrayXXf prob00to10[5];
     // ArrayXf optVal;
