@@ -124,8 +124,6 @@ int main() {
     MatrixXcd ls101[] = {s1,s0,s1,I,I,I}; MatrixXcd ls011[] = {s0,s1,s1,I,I,I};
     num_ops = 6;
 
-    MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
-
     int listLength, numFidelities, Ncycles, Ohm;
     float collapseOn, collapseOff, J, F;
     bool checking_min = 0;
@@ -142,12 +140,14 @@ int main() {
     ArrayXXf dataList(2, listLength);
     dataList.setZero();
 
-    basic_funcs bf(collapseOn, collapseOff, J);
+    basic_funcs bf(collapseOff, collapseOff, J);
 
     rho000 = bf.tensor(ls000, num_ops); rho111 = bf.tensor(ls111, num_ops);
     rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
     rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
     rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
+
+    MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
     
     // MatrixXcd zeroes = MatrixXcd::Zero(64,64);
     // cout << (zeroes == rho000) << endl;
@@ -169,9 +169,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    MatrixXcd 
-
-    // bf.evolveState(dt, Ncycles, rho000, rho000, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
+    bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
     outputFPlotData(evolve_file, dataList);
     // cout << finalState << endl;
 

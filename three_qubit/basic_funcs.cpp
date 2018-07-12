@@ -133,8 +133,8 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
             // if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX + pulse(t*dt, tcycle, c2, Nmax)*HY;
             // else H = HP + Ohm*HX;
             dataList(0, dataIndex) = tcurrent + t*dt;
-            dataList(1, dataIndex) = 0;
-            // dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
+            // dataList(1, dataIndex) = 0;
+            dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace()/8;
             lindbladRK4(collapseOn, collapse, dt, currentState, H, currentState);
             dataIndex++;
         }
