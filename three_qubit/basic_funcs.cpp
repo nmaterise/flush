@@ -54,11 +54,19 @@ float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
 
 inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
     output = 2.0*IM*PI*(rho*H - H*rho) 
-             + cp*(X1*rho*X1 - 0.5*(X1*rho + rho*X1)) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
-             + cp*(X2*rho*X2 - 0.5*(X2*rho + rho*X2)) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
-             + cp*(X3*rho*X3 - 0.5*(X3*rho + rho*X3)) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));
+             + cp*(X1*rho*X1 - rho) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
+             + cp*(X2*rho*X2 - rho) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
+             + cp*(X3*rho*X3 - rho) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));
     return;
 }
+
+// inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
+//     output = 2.0*IM*PI*(rho*H - H*rho) 
+//              + cp*(X1*rho*X1 - 0.5*(X1*rho + rho*X1)) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
+//              + cp*(X2*rho*X2 - 0.5*(X2*rho + rho*X2)) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
+//              + cp*(X3*rho*X3 - 0.5*(X3*rho + rho*X3)) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));
+//     return;
+// }
 
 inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
     MatrixXcd t1, t2, t3, k1, k2, k3, k4;
