@@ -118,10 +118,10 @@ int main() {
     I = Matrix2cd::Identity();
     s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
     MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011, finalState;
-    MatrixXcd ls000[] = {s0,s0,s0,I,I,I}; MatrixXcd ls111[] = {s1,s1,s1,I,I,I}; 
-    MatrixXcd ls100[] = {s1,s0,s0,I,I,I}; MatrixXcd ls010[] = {s0,s1,s0,I,I,I};
-    MatrixXcd ls001[] = {s0,s0,s1,I,I,I}; MatrixXcd ls110[] = {s1,s1,s0,I,I,I};
-    MatrixXcd ls101[] = {s1,s0,s1,I,I,I}; MatrixXcd ls011[] = {s0,s1,s1,I,I,I};
+    MatrixXcd ls000[] = {s0,s0,s0,s0,s0,s0}; MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
+    MatrixXcd ls100[] = {s1,s0,s0,s0,s0,s0}; MatrixXcd ls010[] = {s0,s1,s0,s0,s0,s0};
+    MatrixXcd ls001[] = {s0,s0,s1,s0,s0,s0}; MatrixXcd ls110[] = {s1,s1,s0,s0,s0,s0};
+    MatrixXcd ls101[] = {s1,s0,s1,s0,s0,s0}; MatrixXcd ls011[] = {s0,s1,s1,s0,s0,s0};
     num_ops = 6;
 
     int listLength, numFidelities, Ncycles, Ohm;
@@ -140,19 +140,19 @@ int main() {
     ArrayXXf dataList(2, listLength);
     dataList.setZero();
 
-    basic_funcs bf(collapseOff, collapseOff, J);
+    basic_funcs bf(collapseOn, collapseOff, J);
 
     rho000 = bf.tensor(ls000, num_ops); rho111 = bf.tensor(ls111, num_ops);
     rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
     rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
     rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
 
-    MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
+    // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
     
     // MatrixXcd zeroes = MatrixXcd::Zero(64,64);
     // cout << (zeroes == rho000) << endl;
 
-    evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
+    // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
     /*
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
     if(checking_min) evolve_file += "_min";
@@ -170,7 +170,7 @@ int main() {
     Ohm = 0;
 
     bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
-    outputFPlotData(evolve_file, dataList);
+    // outputFPlotData(evolve_file, dataList);
     // cout << finalState << endl;
 
     // ArrayXXf prob00to10[5];

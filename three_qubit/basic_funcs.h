@@ -1,10 +1,10 @@
 // Operator declarations
 
 #include <iostream>
-// #include <Eigen/Dense>
-// #include <unsupported/Eigen/KroneckerProduct>
-#include <Eigen>
-#include <KroneckerProduct>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/KroneckerProduct>
+// #include <Eigen>
+// #include <KroneckerProduct>
 
 using namespace std;
 using namespace Eigen;
@@ -35,6 +35,7 @@ class basic_funcs {
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
+        float collapseOn, collapseOff;
         
     private:
         // Member Variables
@@ -43,7 +44,6 @@ class basic_funcs {
                   X1S, X2S, X3S, Y1S, Y2S, Y3S, Z1S, Z2S, Z3S,
                   a1, a1d, a2, a2d, a3, a3d,
                   HP, HS;
-        float collapseOn, collapseOff;
 };
 
 #endif // BASIC_FUNCS_H
