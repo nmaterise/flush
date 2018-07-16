@@ -152,7 +152,7 @@ int main() {
     // MatrixXcd zeroes = MatrixXcd::Zero(64,64);
     // cout << (zeroes == rho000) << endl;
 
-    // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
+    evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
     /*
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
     if(checking_min) evolve_file += "_min";
@@ -170,7 +170,7 @@ int main() {
     Ohm = 0;
 
     bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
-    // outputFPlotData(evolve_file, dataList);
+    outputFPlotData(evolve_file, dataList);
     // cout << finalState << endl;
 
     // ArrayXXf prob00to10[5];

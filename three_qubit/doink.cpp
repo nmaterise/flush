@@ -55,5 +55,7 @@ int main() {
 	float cs = 1e-3/20;
 	lindbladME(cs, 0.03, rho111, mat);
 	cout << ((rho111*mat.adjoint()).trace()) << endl;
+	rho111 = rho111 + rho111;
+	cout << rho111.cwiseAbs() << endl;
 	return 0;
 }

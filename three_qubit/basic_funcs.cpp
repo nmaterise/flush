@@ -62,15 +62,15 @@ inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXc
     return;
 }
 
-// inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
-//     MatrixXcd t1, t2, t3, k1, k2, k3, k4;
-//     lindbladME(col1, col2, rho, H, k1);
-//     t1 = rho + 0.5*step*k1; lindbladME(col1, col2, t1, H, k2);
-//     t2 = rho + 0.5*step*k2; lindbladME(col1, col2, t2, H, k3);
-//     t3 = rho + step*k3; lindbladME(col1, col2, t3, H, k4);
-//     output = rho + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
-//     return;
-// }
+inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixXcd& H, MatrixXcd& rho) {
+    MatrixXcd t1, t2, t3, k1, k2, k3, k4;
+    lindbladME(col1, col2, rho, H, k1);
+    t1 = rho + 0.5*step*k1; lindbladME(col1, col2, t1, H, k2);
+    t2 = rho + 0.5*step*k2; lindbladME(col1, col2, t2, H, k3);
+    t3 = rho + step*k3; lindbladME(col1, col2, t3, H, k4);
+    rho = rho + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
+    return;
+}
 
 /*
 void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, int listLength, bool checking_min) {
@@ -109,7 +109,7 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
 }
 */
 
-void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int* t_cyc, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {/*
+void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int* t_cyc, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
     float collapse;
     int tp, tf, tmax, Nmax, dataIndex, tcycle, tcurrent;
     MatrixXcd currentState, H;
@@ -137,17 +137,19 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
             dataList(0, dataIndex) = tcurrent + t*dt;
             // dataList(1, dataIndex) = 0;
             dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
-            lindbladRK4(collapseOn, collapse, dt, currentState, H, currentState);
+            lindbladRK4(collapseOn, collapse, dt, H, currentState);
             dataIndex++;
         }
         tcurrent += tcycle;
     }
     int quarterPoint = dataList.cols()*0.25;
     F = dataList.block(0, 3*quarterPoint, 2, quarterPoint).rowwise().mean()(1);
-    finalState = currentState;*/
-    MatrixXcd mat;
-    lindbladME(collapseOn, collapseOff, initial, HP, mat);
-    cout << "DID ANYTHING HAPPEN? :: " << ((initial*mat.adjoint()).trace()) << endl;
+    finalState = currentState;
+    // MatrixXcd mat;
+    // mat = initial;
+    // // lindbladME(collapseOn, collapseOff, initial, HP, mat);
+    // lindbladRK4(collapseOn, collapseOff, dt, HP, mat);
+    // cout << "DID ANYTHING HAPPEN? :: " << ((initial*mat.adjoint()).trace()) << endl;
     return;
 }
 

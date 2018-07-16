@@ -30,7 +30,7 @@ class basic_funcs {
         MatrixXcd tensor(MatrixXcd*, int);
         float pulse(float, int, ArrayXf&, int);
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
+        inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&);
         // void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
 
