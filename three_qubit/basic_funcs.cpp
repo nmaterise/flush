@@ -31,7 +31,9 @@ basic_funcs::basic_funcs(float cOn, float cOff, float J) {
     a3 = tensor(a3List, num_ops); a3d = a3.adjoint();
 
     HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
-    // HS = 2*J*(Z1S + Z2S + Z3S);
+    HS = 2*J*(Z1S + Z2S + Z3S);
+    HX1 = X1*X1S; HX2 = X2*X2S; HX3 = X3*X3S;
+    HY1 = X1*Y1S; HY2 = X2*Y2S; HY3 = X3*Y3S;
 
     collapseOn = cOn; collapseOff = cOff;
 }
@@ -46,13 +48,13 @@ MatrixXcd basic_funcs::tensor(MatrixXcd* matrix_list, int num_matrices) {
     return output;
 }
 
-// float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
-//     float f = 0;
-//     for(int n = 1; n <= Nmax; n++) {
-//         f += c[n - 1]*sin(n*PI*t/tp);
-//     }
-//     return f;
-// }
+float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
+    float f = 0;
+    for(int n = 1; n <= Nmax; n++) {
+        f += c[n - 1]*sin(n*PI*t/tp);
+    }
+    return f;
+}
 
 inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
     output = 2.0*IM*PI*(rho*H - H*rho) 
@@ -110,11 +112,12 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
 */
 
 void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int* t_cyc, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
-    float collapse;
+    float collapse, Ohm1, Ohm2, Ohm3;
     int tp, tf, tmax, Nmax, dataIndex, tcycle, tcurrent;
     MatrixXcd currentState, H;
+    Ohm1 = Ohm; Ohm2 = Ohm; Ohm3 = Ohm;
     Nmax = pulse_c[0].size();
-    ArrayXf c1(Nmax), c2(Nmax), c3(Nmax);
+    ArrayXf c1(Nmax), c2(Nmax);// c3(Nmax);
     currentState = initial; tcurrent = 0; dataIndex = 0;
     finalState = MatrixXcd::Zero(6,6);
     dataList(0, 0) = 0;
@@ -122,20 +125,24 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
     for(int i = 0; i <= Ncycles; i++) {
         if(flush) {
             if(i%2 == 0) {
-                tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; c3 = pulse_c[2];
+                tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; //c3 = pulse_c[2];
             } else {
-                tcycle = t_cyc[1]; collapse = collapseOff; c1.setZero(); c2.setZero(); c3.setZero();
+                tcycle = t_cyc[1]; collapse = collapseOff; c1.setZero(); c2.setZero(); //c3.setZero();
             }
         } else {
-            tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; c3 = pulse_c[2];
+            tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; //c3 = pulse_c[2];
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {
-            H = HP;
-            // if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX + pulse(t*dt, tcycle, c2, Nmax)*HY;
-            // else H = HP + Ohm*HX;
+            // H = HP;
+            if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX1
+                             + pulse(t*dt, tcycle, c2, Nmax)*HY1
+                             + pulse(t*dt, tcycle, c1, Nmax)*HX2
+                             + pulse(t*dt, tcycle, c2, Nmax)*HY2
+                             + pulse(t*dt, tcycle, c1, Nmax)*HX3
+                             + pulse(t*dt, tcycle, c2, Nmax)*HY3 + HS;
+            else H = HP + Ohm1*HX1 + Ohm2*HX2 + Ohm3*HX3 + HS;
             dataList(0, dataIndex) = tcurrent + t*dt;
-            // dataList(1, dataIndex) = 0;
             dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
             lindbladRK4(collapseOn, collapse, dt, H, currentState);
             dataIndex++;

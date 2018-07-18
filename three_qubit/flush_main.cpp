@@ -127,8 +127,10 @@ int main() {
     int listLength, numFidelities, Ncycles, Ohm;
     float collapseOn, collapseOff, J, F;
     bool checking_min = 0;
-    ArrayXf pulse_c[3];
-    pulse_c[0].setZero(20); pulse_c[1].setZero(20); pulse_c[2].setZero(20);
+    // ArrayXf cx(20), cy(20); 
+    ArrayXf pulse_c[2];
+    // cx.setZero(); cy.setZero();
+    pulse_c[0].setZero(20); pulse_c[1].setZero(20); //pulse_c[2].setZero(20);
     tp = 20; tf = 40; Ncycles = 3; //numFidelities = 0;
     dt = 0.1; dc = 0.0001; acc = 1e-5;
     listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
@@ -148,11 +150,10 @@ int main() {
     rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
 
     // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
-    
-    // MatrixXcd zeroes = MatrixXcd::Zero(64,64);
-    // cout << (zeroes == rho000) << endl;
 
     evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
+    evolve_file = "./outFiles/yes_coupling.dat";
+
     /*
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
     if(checking_min) evolve_file += "_min";
@@ -162,6 +163,7 @@ int main() {
 
     // cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
     // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
+    // pulse_c[0] = cx; pulse_c[1] = cy;
 
     time(&t0);
 
@@ -169,7 +171,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
+    bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 1, dataList, F, finalState);
     outputFPlotData(evolve_file, dataList);
     // cout << finalState << endl;
 

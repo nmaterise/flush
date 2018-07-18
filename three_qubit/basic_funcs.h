@@ -43,7 +43,7 @@ class basic_funcs {
         MatrixXcd X1, X2, X3, Y1, Y2, Y3, Z1, Z2, Z3,
                   X1S, X2S, X3S, Y1S, Y2S, Y3S, Z1S, Z2S, Z3S,
                   a1, a1d, a2, a2d, a3, a3d,
-                  HP, HS;
+                  HP, HS, HX1, HX2, HX3, HY1, HY2, HY3;
 };
 
 #endif // BASIC_FUNCS_H
