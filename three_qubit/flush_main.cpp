@@ -130,7 +130,7 @@ int main() {
     // ArrayXf cx(20), cy(20); 
     ArrayXf pulse_c[2];
     // cx.setZero(); cy.setZero();
-    pulse_c[0].setZero(20); pulse_c[1].setZero(20); //pulse_c[2].setZero(20);
+    pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
     tp = 20; tf = 40; Ncycles = 3; //numFidelities = 0;
     dt = 0.1; dc = 0.0001; acc = 1e-5;
     listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
@@ -151,7 +151,7 @@ int main() {
 
     // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
 
-    evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
+    // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
     evolve_file = "./outFiles/yes_coupling.dat";
 
     /*
@@ -171,7 +171,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 1, dataList, F, finalState);
+    bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
     outputFPlotData(evolve_file, dataList);
     // cout << finalState << endl;
 
