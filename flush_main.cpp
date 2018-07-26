@@ -13,41 +13,6 @@
 using namespace std;
 using namespace Eigen;
 
-void mathematica_outputPlotData(string filename, int listLength, ArrayXXf& dataList) {
-    ofstream fout;
-    fout.open(filename.c_str());
-    fout << "{";
-    for(int i = 1; i < dataList.rows(); i++) {
-        fout << "{{0,0},";
-        for(int j = 0; j < listLength; j++) {
-            if(j == (listLength - 1)) fout << "{" << dataList(0, j) << "," << dataList(i, j) << "}";
-            else fout << "{" << dataList(0, j) << "," << dataList(i, j) << "},";
-        }
-        if(i == dataList.rows() - 1) fout << "}";
-        else fout << "},\n";
-    }
-    fout << "};\n";
-    fout.close();
-    return;
-}
-
-void mathematica_outputPulseData(string filename, ArrayXf& cx, ArrayXf& cy) {
-    ofstream fout;
-    fout.open(filename.c_str());
-    fout << "{{";
-    for(int i = 0; i < cx.size(); i++) {
-        if(i == cx.size() - 1) fout << cx[i] << "},{\n";
-        else fout << cx[i] << ",";
-    }
-    for(int i = 0; i < cy.size(); i++) {
-        if(i == cy.size() - 1) fout << cy[i] << "}\n";
-        else fout << cy[i] << ",";
-    }
-    fout << "};\n";
-    fout.close();
-    return;
-}
-
 void outputFPlotData(string filename, ArrayXXf& FdataList) {
     ofstream fout;
     fout.open(filename.c_str());
@@ -60,7 +25,7 @@ void outputFPlotData(string filename, ArrayXXf& FdataList) {
     fout.close();
     return;
 }
-
+/*
 void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int listLength, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
@@ -96,10 +61,12 @@ void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& 
     return;
 }
 
-void getMatrix(int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
+void getMatrix(basic_funcs& bf, int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
     float collapseOn, collapseOff;
     collapseOn = 1e-3/(k*10); collapseOff = 0.03;
-    basic_funcs bf(collapseOn, collapseOff);
+
+    // basic_funcs bf(collapseOn, collapseOff);
+    
     int tp, tf, listLength;
     float dt = 0.1;
     tp = 20; tf = mult*l;
@@ -141,63 +108,85 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
     }
     return;
 }
-
+*/
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    MatrixXcd I, rho00, rho01, rho10, rho11, rho2N, rho20, rho21, target, currentState;
-    Matrix2cd eye, s0, s1; 
-    Matrix3cd eyye, ss0, ss1, ss2; 
-    eye = Matrix2cd::Identity(); eyye = Matrix3cd::Identity();
-    s0 << 1, 0, 0, 0; ss0 << 1, 0, 0, 0, 0, 0, 0, 0, 0;
-    s1 << 0, 0, 0, 1; ss1 << 0, 0, 0, 0, 1, 0, 0, 0, 0;
-    ss2 << 0, 0, 0, 0, 0, 0, 0, 0, 1;
-    rho00 = kroneckerProduct(ss0, s0);
-    rho01 = kroneckerProduct(ss0, s1);
-    rho10 = kroneckerProduct(ss1, s0);
-    rho11 = kroneckerProduct(ss1, s1);
-    rho20 = kroneckerProduct(ss2, s0);
-    rho21 = kroneckerProduct(ss2, s1);
-    rho2N = kroneckerProduct(ss2, eye);
-    MatrixXcd rhoList[6] = {rho00, rho01, rho10, rho11, rho20, rho21};
-    target = kroneckerProduct(ss1, eye);
-    I = kroneckerProduct(eyye, eye);
-    currentState = rho10;
-    ArrayXf cx(20), cy(20); cx.setZero(); cy.setZero(); cx[0] = 0.02;
-    int listLength, numFidelities, tp, tf;
-    float dt, dc, acc, c1, c2;
-    bool checking_min;
-    tp = 20; tf = 40; numFidelities = 2; checking_min = 0;
+    int tp, tf, num_ops;
+    float dt, dc, acc;
+    Matrix2cd I, s0, s1;
+    I = Matrix2cd::Identity();
+    s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
+    MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011, finalState;
+    MatrixXcd ls000[] = {s0,s0,s0,s0,s0,s0}; MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
+    MatrixXcd ls100[] = {s1,s0,s0,s0,s0,s0}; MatrixXcd ls010[] = {s0,s1,s0,s0,s0,s0};
+    MatrixXcd ls001[] = {s0,s0,s1,s0,s0,s0}; MatrixXcd ls110[] = {s1,s1,s0,s0,s0,s0};
+    MatrixXcd ls101[] = {s1,s0,s1,s0,s0,s0}; MatrixXcd ls011[] = {s0,s1,s1,s0,s0,s0};
+    num_ops = 6;
+
+    int listLength, numFidelities, Ncycles, Ohm;
+    float collapseOn, collapseOff, J, F;
+    bool checking_min = 0;
+    // ArrayXf cx(20), cy(20); 
+    ArrayXf pulse_c[2];
+    // cx.setZero(); cy.setZero();
+    pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
+    tp = 20; tf = 40; Ncycles = 3; //numFidelities = 0;
+    dt = 0.1; dc = 0.0001; acc = 1e-5;
+    listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
+    collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
+
+    // ArrayXf fidelities(numFidelities + 1);
+    // ArrayXXf dataList(numFidelities + 2, listLength), FdataList;
+    // fidelities.setZero(); dataList.setZero();
+    ArrayXXf dataList(2, listLength);
+    dataList.setZero();
+
+    basic_funcs bf(collapseOn, collapseOff, J);
+
+    rho000 = bf.tensor(ls000, num_ops); rho111 = bf.tensor(ls111, num_ops);
+    rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
+    rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
+    rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
+
+    // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
+
+    // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
+    evolve_file = "./outFiles/yes_coupling.dat";
+
+    /*
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
     if(checking_min) evolve_file += "_min";
     pulse_file = evolve_file + ".pls";
     evolve_file += ".dat";
-    
-    dt = 0.1; dc = 0.0001; acc = 1e-5;
-    c1, c2 = 0.0;
-    listLength = floor(tp/dt);
-    ArrayXf fidelities(numFidelities + 1);
-    ArrayXXf dataList(numFidelities + 2, listLength), FdataList;
-    fidelities.setZero(); dataList.setZero();
+    */
 
-    cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
-    cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
+    // cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
+    // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
+    // pulse_c[0] = cx; pulse_c[1] = cy;
 
-    ArrayXXf prob00to10[5];
-    ArrayXf optVal;
-    optVal.setZero(5);
     time(&t0);
-    
-    for(int k = 1; k < 6; k++) {
-        optimizeFlushCycle(10, k, 1, 13, rhoList, cx, cy, prob00to10[k - 1]);
-        optVal[k - 1] = prob00to10[k - 1].rowwise().maxCoeff()(1);
-    }
+
+    cout << "**************** ENTERING TIMED SECTION *****************" << endl;
+    int t_cyc[] = {tp, tf};
+    Ohm = 0;
+
+    bf.evolveState(dt, Ncycles, rho111, rho111, t_cyc, pulse_c, Ohm, 0, dataList, F, finalState);
+    outputFPlotData(evolve_file, dataList);
+    // cout << finalState << endl;
+
+    // ArrayXXf prob00to10[5];
+    // ArrayXf optVal;
+    // optVal.setZero(5);    
+    // for(int k = 1; k < 6; k++) {
+    //     optimizeFlushCycle(10, k, 1, 13, rhoList, cx, cy, prob00to10[k - 1]);
+    //     optVal[k - 1] = prob00to10[k - 1].rowwise().maxCoeff()(1);
+    // }
     
     time(&t1);
 
-    for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
+    // for(int k = 0; k < 5; k++) cout << optVal[k] << ":\n" << prob00to10[k] << endl << endl;
     cout << "TIME TO RUN :: " << difftime(t1, t0) << endl;
     
     return 0;
 }
-

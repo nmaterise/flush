@@ -17,34 +17,33 @@ using namespace Eigen;
 
 class basic_funcs {
     public:
+        // Default Constructor
+        // basic_funcs();
+
         // Overload Constructor
-        basic_funcs(float, float);
+        basic_funcs(float, float, float);
 
         // Destructor
         ~basic_funcs();
 
-        // Accessor Functions
-        float getColOn() const;
-        float getColOff() const;
-
         // System functions
+        MatrixXcd tensor(MatrixXcd*, int);
         float pulse(float, int, ArrayXf&, int);
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
-        void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, ArrayXf&, ArrayXXf&, int, int, bool);
-        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
+        inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&);
+        // void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
+        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
-        Matrix2cd eye;
-        Matrix3cd eyye;
-        MatrixXcd I;
+        float collapseOn, collapseOff;
         
     private:
         // Member Variables
-        Matrix2cd a; 
-        Matrix3cd aa; 
-        MatrixXcd ap, apd, as, asd, HX, HY, HP;
-        float collapseOn, collapseOff;
+        Matrix2cd a, I, X, Y, Z;
+        MatrixXcd X1, X2, X3, Y1, Y2, Y3, Z1, Z2, Z3,
+                  X1S, X2S, X3S, Y1S, Y2S, Y3S, Z1S, Z2S, Z3S,
+                  a1, a1d, a2, a2d, a3, a3d,
+                  HP, HS, HX1, HX2, HX3, HY1, HY2, HY3;
 };
 
 #endif // BASIC_FUNCS_H
