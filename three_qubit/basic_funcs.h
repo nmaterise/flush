@@ -32,7 +32,7 @@ class basic_funcs {
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&);
         // void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, float, float, int, ArrayXf&, ArrayXXf&, int, bool);
-        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int*, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
+        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int, int, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
         float collapseOn, collapseOff;

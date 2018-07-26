@@ -111,9 +111,10 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
 }
 */
 
-void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int* t_cyc, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
+void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
+    cout << "ENTER" << endl;
     float collapse, Ohm1, Ohm2, Ohm3;
-    int tp, tf, tmax, Nmax, dataIndex, tcycle, tcurrent;
+    int tmax, Nmax, dataIndex, tcycle, tcurrent;
     MatrixXcd currentState, H;
     Ohm1 = Ohm; Ohm2 = Ohm; Ohm3 = Ohm;
     Nmax = pulse_c[0].size();
@@ -122,26 +123,26 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
     finalState = MatrixXcd::Zero(6,6);
     dataList(0, 0) = 0;
     dataList(1, 0) = (target*currentState.adjoint()).cwiseAbs().trace();
-    for(int i = 0; i <= Ncycles; i++) {
+    for(int i = 0; i < Ncycles; i++) {
         if(flush) {
             if(i%2 == 0) {
-                tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; //c3 = pulse_c[2];
+                tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];// c3 = pulse_c[2];
             } else {
-                tcycle = t_cyc[1]; collapse = collapseOff; c1.setZero(); c2.setZero(); //c3.setZero();
+                tcycle = tf; collapse = collapseOff; c1.setZero(); c2.setZero();// c3.setZero();
             }
         } else {
-            tcycle = t_cyc[0]; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1]; //c3 = pulse_c[2];
+            tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];// c3 = pulse_c[2];
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {
-            // H = HP;
-            if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX1
-                             + pulse(t*dt, tcycle, c2, Nmax)*HY1
-                             + pulse(t*dt, tcycle, c1, Nmax)*HX2
-                             + pulse(t*dt, tcycle, c2, Nmax)*HY2
-                             + pulse(t*dt, tcycle, c1, Nmax)*HX3
-                             + pulse(t*dt, tcycle, c2, Nmax)*HY3 + HS;
-            else H = HP + Ohm1*HX1 + Ohm2*HX2 + Ohm3*HX3 + HS;
+            H = HP;
+            // if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX1
+            //                  + pulse(t*dt, tcycle, c2, Nmax)*HY1
+            //                  + pulse(t*dt, tcycle, c1, Nmax)*HX2
+            //                  + pulse(t*dt, tcycle, c2, Nmax)*HY2
+            //                  + pulse(t*dt, tcycle, c1, Nmax)*HX3
+            //                  + pulse(t*dt, tcycle, c2, Nmax)*HY3 + HS;
+            // else H = HP + Ohm1*HX1 + Ohm2*HX2 + Ohm3*HX3 + HS;
             dataList(0, dataIndex) = tcurrent + t*dt;
             dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
             lindbladRK4(collapseOn, collapse, dt, H, currentState);
