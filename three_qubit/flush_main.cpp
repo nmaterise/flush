@@ -60,7 +60,7 @@ void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& 
     cout << "=== NUM OF ITERATIONS ===\n" << it << endl;
     return;
 }
-
+/*
 void getMatrix(basic_funcs& bf, int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
     float collapseOn, collapseOff;
     collapseOn = 1e-3/(k*10); collapseOff = 0.03;
@@ -112,9 +112,9 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    int tp, tf, num_ops, listLength;
-    float dt, dc, acc;
-    bool flush;
+    int tp, tf, num_ops, numFidelities, Ncycles, Ohm, listLength;
+    float dt, dc, acc, collapseOn, collapseOff, J, F;
+    bool flush, checking_min;
     Matrix2cd I, s0, s1;
     I = Matrix2cd::Identity();
     s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
@@ -125,18 +125,14 @@ int main() {
     MatrixXcd ls101[] = {s1,s0,s1,s0,s0,s0}; MatrixXcd ls011[] = {s0,s1,s1,s0,s0,s0};
     num_ops = 6;
 
-    // int listLength;
-    int numFidelities, Ncycles, Ohm;
-    float collapseOn, collapseOff, J, F;
-    bool checking_min = 0;
-    // ArrayXf cx(20), cy(20); 
+    ArrayXf cx(20), cy(20); 
     ArrayXf pulse_c[2];
-    // cx.setZero(); cy.setZero();
+    cx.setZero(); cy.setZero();
     pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
     tp = 20; tf = 40; Ncycles = 3; //numFidelities = 0;
     dt = 0.1; dc = 0.0001; acc = 1e-5;
     collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
-    flush = 1;
+    flush = 1; checking_min = 0;
 
     // ArrayXf fidelities(numFidelities + 1);
     // ArrayXXf dataList(numFidelities + 2, listLength), FdataList;
@@ -169,9 +165,9 @@ int main() {
     evolve_file += ".dat";
     */
 
-    // cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
-    // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
-    // pulse_c[0] = cx; pulse_c[1] = cy;
+    cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
+    cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
+    pulse_c[0] = cx; pulse_c[1] = cy;
     
 
     time(&t0);

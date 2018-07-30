@@ -74,13 +74,12 @@ inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixX
     return;
 }
 
-/*
 void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, int listLength, bool checking_min) {
     MatrixXcd currentState1, currentState2, H;
     float F, t;
     int Nmax, Findex;
     Nmax = cx.size();
-    currentState1 = rho00; currentState2 = rho10;
+    currentState1 = rho000; currentState2 = rho100;
     t = dt;
     for(int i = 0; i < listLength; i++) {
         H = HP + pulse(t, tp, cx, Nmax)*HX + pulse(t, tp, cy, Nmax)*HY;
@@ -109,7 +108,6 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     fidelities(0) = F;
     return;
 }
-*/
 
 void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
     cout << "ENTER" << endl;
@@ -135,14 +133,14 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {
-            H = HP;
-            // if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX1
-            //                  + pulse(t*dt, tcycle, c2, Nmax)*HY1
-            //                  + pulse(t*dt, tcycle, c1, Nmax)*HX2
-            //                  + pulse(t*dt, tcycle, c2, Nmax)*HY2
-            //                  + pulse(t*dt, tcycle, c1, Nmax)*HX3
-            //                  + pulse(t*dt, tcycle, c2, Nmax)*HY3 + HS;
-            // else H = HP + Ohm1*HX1 + Ohm2*HX2 + Ohm3*HX3 + HS;
+            // H = HP;
+            if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX1
+                             + pulse(t*dt, tcycle, c2, Nmax)*HY1
+                             + pulse(t*dt, tcycle, c1, Nmax)*HX2
+                             + pulse(t*dt, tcycle, c2, Nmax)*HY2
+                             + pulse(t*dt, tcycle, c1, Nmax)*HX3
+                             + pulse(t*dt, tcycle, c2, Nmax)*HY3 + HS;
+            else H = HP + Ohm1*HX1 + Ohm2*HX2 + Ohm3*HX3 + HS;
             dataList(0, dataIndex) = tcurrent + t*dt;
             dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
             lindbladRK4(collapseOn, collapse, dt, H, currentState);
@@ -153,11 +151,7 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
     int quarterPoint = dataList.cols()*0.25;
     F = dataList.block(0, 3*quarterPoint, 2, quarterPoint).rowwise().mean()(1);
     finalState = currentState;
-    // MatrixXcd mat;
-    // mat = initial;
-    // // lindbladME(collapseOn, collapseOff, initial, HP, mat);
-    // lindbladRK4(collapseOn, collapseOff, dt, HP, mat);
-    // cout << "DID ANYTHING HAPPEN? :: " << ((initial*mat.adjoint()).trace()) << endl;
+
     return;
 }
 
