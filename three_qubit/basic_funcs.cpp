@@ -74,21 +74,30 @@ inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixX
     return;
 }
 
-void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, int listLength, bool checking_min) {
-    MatrixXcd currentState1, currentState2, H;
+void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
+    cout << "ENTER" << endl;
+    MatrixXcd currentState1, currentState2, currentState3, H;
     float F, t;
-    int Nmax, Findex;
+    int Nmax, Findex, listLength;
     Nmax = cx.size();
-    currentState1 = rho000; currentState2 = rho100;
+    currentState1 = rho000; currentState2 = rho100; currentState3 = rho010;
     t = dt;
+    listLength = tp/dt;
+    dataList.setZero(numFidelities + 2, listLength);
     for(int i = 0; i < listLength; i++) {
-        H = HP + pulse(t, tp, cx, Nmax)*HX + pulse(t, tp, cy, Nmax)*HY;
-        lindbladRK4(collapseOn, collapseOff, dt, currentState1, H, currentState1);
-        lindbladRK4(collapseOn, collapseOff, dt, currentState2, H, currentState2);
+        H = HP + pulse(t*dt, tp, cx, Nmax)*HX1
+               + pulse(t*dt, tp, cy, Nmax)*HY1
+               + pulse(t*dt, tp, cx, Nmax)*HX2
+               + pulse(t*dt, tp, cy, Nmax)*HY2
+               + pulse(t*dt, tp, cx, Nmax)*HX3
+               + pulse(t*dt, tp, cy, Nmax)*HY3 + HS;
+        lindbladRK4(0, 0, dt, H, currentState1);
+        lindbladRK4(0, 0, dt, H, currentState2);
+        lindbladRK4(0, 0, dt, H, currentState3);
         dataList(0, i) = t;
-        dataList(1, i) = (rho11*currentState1.adjoint()).cwiseAbs().trace();
-        dataList(2, i) = (rho10*currentState2.adjoint()).cwiseAbs().trace();
-        dataList(3, i) = (rho2N*currentState2.adjoint()).cwiseAbs().trace();
+        dataList(1, i) = (rho000*currentState1.adjoint()).cwiseAbs().trace();
+        dataList(2, i) = (rho000*currentState2.adjoint()).cwiseAbs().trace();
+        dataList(3, i) = (rho010*currentState3.adjoint()).cwiseAbs().trace();
         t += dt;
     }
     fidelities(1) = dataList(1, listLength - 1);
@@ -106,19 +115,22 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
         }     
     }
     fidelities(0) = F;
+    cout << fidelities << endl;
     return;
 }
 
 void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
-    cout << "ENTER" << endl;
     float collapse, Ohm1, Ohm2, Ohm3;
-    int tmax, Nmax, dataIndex, tcycle, tcurrent;
+    int tmax, Nmax, dataIndex, tcycle, tcurrent, listLength;
     MatrixXcd currentState, H;
     Ohm1 = Ohm; Ohm2 = Ohm; Ohm3 = Ohm;
     Nmax = pulse_c[0].size();
     ArrayXf c1(Nmax), c2(Nmax);// c3(Nmax);
     currentState = initial; tcurrent = 0; dataIndex = 0;
     finalState = MatrixXcd::Zero(6,6);
+    if(flush) listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
+    else listLength = (tp*Ncycles)/dt;
+    dataList.setZero(2, listLength);
     dataList(0, 0) = 0;
     dataList(1, 0) = (target*currentState.adjoint()).cwiseAbs().trace();
     for(int i = 0; i < Ncycles; i++) {
@@ -133,7 +145,6 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {
-            // H = HP;
             if(flush) H = HP + pulse(t*dt, tcycle, c1, Nmax)*HX1
                              + pulse(t*dt, tcycle, c2, Nmax)*HY1
                              + pulse(t*dt, tcycle, c1, Nmax)*HX2

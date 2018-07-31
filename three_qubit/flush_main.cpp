@@ -13,7 +13,7 @@
 using namespace std;
 using namespace Eigen;
 
-void outputFPlotData(string filename, ArrayXXf& FdataList) {
+void outputPlotData(string filename, ArrayXXf& FdataList) {
     ofstream fout;
     fout.open(filename.c_str());
     for(int i = 0; i < FdataList.rows(); i++) {
@@ -25,7 +25,7 @@ void outputFPlotData(string filename, ArrayXXf& FdataList) {
     fout.close();
     return;
 }
-/*
+
 void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int listLength, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
@@ -33,8 +33,9 @@ void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& 
     ArrayXf dFx(Nmax), dFy(Nmax);
 
     basic_funcs bf(c1, c2);
+
+    bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
     
-    bf.getFidelity(cx, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
     F = fidelities(0);
     cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
     while(it <  maxIt && (1 - F) > acc) {
@@ -46,7 +47,7 @@ void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& 
             ArrayXf diff_vec(Nmax);
             diff_vec.setZero();
             for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
-            bf.getFidelity(cx + eps*diff_vec, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+            bf.getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
             dFx(i) = fidelities(0) - F;
             bf.getFidelity(cx, cy + eps*diff_vec, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
             dFy(i) = fidelities(0) - F;
@@ -129,14 +130,14 @@ int main() {
     ArrayXf pulse_c[2];
     cx.setZero(); cy.setZero();
     pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
-    tp = 20; tf = 40; Ncycles = 3; //numFidelities = 0;
+    tp = 20; tf = 40; Ncycles = 3; numFidelities = 2;
     dt = 0.1; dc = 0.0001; acc = 1e-5;
     collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
     flush = 1; checking_min = 0;
 
-    // ArrayXf fidelities(numFidelities + 1);
+    ArrayXf fidelities(numFidelities + 1);
     // ArrayXXf dataList(numFidelities + 2, listLength), FdataList;
-    // fidelities.setZero(); dataList.setZero();
+    fidelities.setZero();// dataList.setZero();
 
     basic_funcs bf(collapseOn, collapseOff, J);
 
@@ -149,14 +150,8 @@ int main() {
 
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
     ArrayXXf dataList;
-    if(flush) {
-        listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
-        evolve_file = "./outFiles/yes_coupling.dat";
-    } else {
-        listLength = (tp*Ncycles)/dt;
-        evolve_file = "./outFiles/no_coupling.dat";
-    }
-    dataList.setZero(2, listLength);
+    if(flush) evolve_file = "./outFiles/yes_coupling.dat";
+    else evolve_file = "./outFiles/no_coupling.dat";
 
     /*
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
@@ -176,8 +171,10 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.evolveState(dt, Ncycles, rho111, rho111, tp, tf, pulse_c, Ohm, flush, dataList, F, finalState);
-    outputFPlotData(evolve_file, dataList);
+    bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
+    
+    // bf.evolveState(dt, Ncycles, rho111, rho111, tp, tf, pulse_c, Ohm, flush, dataList, F, finalState);
+    outputPlotData(evolve_file, dataList);
     // cout << finalState << endl;
 
     // ArrayXXf prob00to10[5];
