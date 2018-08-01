@@ -25,8 +25,8 @@ void outputPlotData(string filename, ArrayXXf& FdataList) {
     fout.close();
     return;
 }
-
-void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho00, MatrixXcd& rho10, MatrixXcd& rho11, MatrixXcd& rho2N, float c1, float c2, int listLength, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
+/*
+void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, float c1, float c2, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
     Nmax = cx.size(); it = 0; eps = dc;
@@ -42,18 +42,18 @@ void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& 
         if((1 - F)/acc > 100) eps = dc;
         else if((1 - F)/acc > 10) eps = 0.1*dc;
         else eps = 0.01*dc;
-        #pragma omp parallel for
+        // #pragma omp parallel for
         for(int i = 0; i < Nmax; i++) {
             ArrayXf diff_vec(Nmax);
             diff_vec.setZero();
             for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
             bf.getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
             dFx(i) = fidelities(0) - F;
-            bf.getFidelity(cx, cy + eps*diff_vec, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+            bf.getFidelity(cx, cy + eps*diff_vec, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
             dFy(i) = fidelities(0) - F;
         }
         cx += dFx; cy += dFy;
-        bf.getFidelity(cx, cy, tp, dt, rho00, rho10, rho11, rho2N, c1, c2, fidelities, dataList, listLength, numFidelities, checking_min);
+        bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
         F = fidelities(0);
         it++;
     }
@@ -171,7 +171,9 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
+    bf.optimizePulse(tp, dt, 10, dc, acc, cx, cy, rho000, rho100, rho010, fidelities, dataList, numFidelities, checking_min);
+
+    // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
     
     // bf.evolveState(dt, Ncycles, rho111, rho111, tp, tf, pulse_c, Ohm, flush, dataList, F, finalState);
     outputPlotData(evolve_file, dataList);

@@ -75,7 +75,6 @@ inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixX
 }
 
 void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
-    cout << "ENTER" << endl;
     MatrixXcd currentState1, currentState2, currentState3, H;
     float F, t;
     int Nmax, Findex, listLength;
@@ -116,6 +115,40 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     }
     fidelities(0) = F;
     cout << fidelities << endl;
+    return;
+}
+
+void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
+    float F, eps;
+    int Nmax, it; 
+    Nmax = cx.size(); it = 0; eps = dc;
+    ArrayXf dFx(Nmax), dFy(Nmax);
+
+    getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
+    
+    F = fidelities(0);
+    cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
+    while(it <  maxIt && (1 - F) > acc) {
+        if((1 - F)/acc > 100) eps = dc;
+        else if((1 - F)/acc > 10) eps = 0.1*dc;
+        else eps = 0.01*dc;
+        // #pragma omp parallel for
+        for(int i = 0; i < Nmax; i++) {
+            ArrayXf diff_vec(Nmax);
+            diff_vec.setZero();
+            for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
+            getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
+            dFx(i) = fidelities(0) - F;
+            getFidelity(cx, cy + eps*diff_vec, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
+            dFy(i) = fidelities(0) - F;
+        }
+        cx += dFx; cy += dFy;
+        getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
+        F = fidelities(0);
+        it++;
+    }
+    cout << "=== FINAL FIDELITIES ===\n" << fidelities << endl;
+    cout << "=== NUM OF ITERATIONS ===\n" << it << endl;
     return;
 }
 
