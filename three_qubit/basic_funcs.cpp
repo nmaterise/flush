@@ -132,7 +132,7 @@ void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float a
         if((1 - F)/acc > 100) eps = dc;
         else if((1 - F)/acc > 10) eps = 0.1*dc;
         else eps = 0.01*dc;
-        // #pragma omp parallel for
+        #pragma omp parallel for
         for(int i = 0; i < Nmax; i++) {
             ArrayXf diff_vec(Nmax);
             diff_vec.setZero();
