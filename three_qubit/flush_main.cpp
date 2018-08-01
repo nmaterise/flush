@@ -26,42 +26,6 @@ void outputPlotData(string filename, ArrayXXf& FdataList) {
     return;
 }
 /*
-void optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, float c1, float c2, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
-    float F, eps;
-    int Nmax, it; 
-    Nmax = cx.size(); it = 0; eps = dc;
-    ArrayXf dFx(Nmax), dFy(Nmax);
-
-    basic_funcs bf(c1, c2);
-
-    bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
-    
-    F = fidelities(0);
-    cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
-    while(it <  maxIt && (1 - F) > acc) {
-        if((1 - F)/acc > 100) eps = dc;
-        else if((1 - F)/acc > 10) eps = 0.1*dc;
-        else eps = 0.01*dc;
-        // #pragma omp parallel for
-        for(int i = 0; i < Nmax; i++) {
-            ArrayXf diff_vec(Nmax);
-            diff_vec.setZero();
-            for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
-            bf.getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
-            dFx(i) = fidelities(0) - F;
-            bf.getFidelity(cx, cy + eps*diff_vec, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
-            dFy(i) = fidelities(0) - F;
-        }
-        cx += dFx; cy += dFy;
-        bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
-        F = fidelities(0);
-        it++;
-    }
-    cout << "=== FINAL FIDELITIES ===\n" << fidelities << endl;
-    cout << "=== NUM OF ITERATIONS ===\n" << it << endl;
-    return;
-}
-/*
 void getMatrix(basic_funcs& bf, int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
     float collapseOn, collapseOff;
     collapseOn = 1e-3/(k*10); collapseOff = 0.03;
@@ -119,11 +83,16 @@ int main() {
     Matrix2cd I, s0, s1;
     I = Matrix2cd::Identity();
     s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
-    MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011, finalState;
+    MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011,
+              000NNN, 111NNN, 100NNN, 010NNN, 001NNN, 110NNN, 101NNN, 011NNN, r100100, finalState;
     MatrixXcd ls000[] = {s0,s0,s0,s0,s0,s0}; MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
     MatrixXcd ls100[] = {s1,s0,s0,s0,s0,s0}; MatrixXcd ls010[] = {s0,s1,s0,s0,s0,s0};
     MatrixXcd ls001[] = {s0,s0,s1,s0,s0,s0}; MatrixXcd ls110[] = {s1,s1,s0,s0,s0,s0};
     MatrixXcd ls101[] = {s1,s0,s1,s0,s0,s0}; MatrixXcd ls011[] = {s0,s1,s1,s0,s0,s0};
+    MatrixXcd N000[] = {s0,s0,s0,I,I,I}; MatrixXcd N111[] = {s1,s1,s1,I,I,I}; 
+    MatrixXcd N100[] = {s1,s0,s0,I,I,I}; MatrixXcd N010[] = {s0,s1,s0,I,I,I};
+    MatrixXcd N001[] = {s0,s0,s1,I,I,I}; MatrixXcd N110[] = {s1,s1,s0,I,I,I};
+    MatrixXcd N101[] = {s1,s0,s1,I,I,I}; MatrixXcd N011[] = {s0,s1,s1,I,I,I};
     num_ops = 6;
 
     ArrayXf cx(20), cy(20); 
@@ -145,6 +114,10 @@ int main() {
     rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
     rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
     rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
+    000NNN = bf.tensor(N000, num_ops); 111NNN = bf.tensor(N111, num_ops);
+    100NNN = bf.tensor(N100, num_ops); 010NNN = bf.tensor(N010, num_ops);
+    001NNN = bf.tensor(N001, num_ops); 110NNN = bf.tensor(N110, num_ops);
+    101NNN = bf.tensor(N101, num_ops); 011NNN = bf.tensor(N011, num_ops);
 
     // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
 
@@ -171,7 +144,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.optimizePulse(tp, dt, 10, dc, acc, cx, cy, rho000, rho100, rho010, fidelities, dataList, numFidelities, checking_min);
+    bf.optimizePulse(tp, dt, 100, dc, acc, cx, cy, rho000, rho100, rho010, fidelities, dataList, numFidelities, checking_min);
 
     // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
     

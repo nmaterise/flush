@@ -31,8 +31,8 @@ class basic_funcs {
         float pulse(float, int, ArrayXf&, int);
         inline void lindbladME(float, float, MatrixXcd&, MatrixXcd&, MatrixXcd&);
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&);
-        void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, int, ArrayXf&, ArrayXXf&, bool);
-        void optimizePulse(float, float, int, float, float, ArrayXf&, ArrayXf&, MatrixXcd&, MatrixXcd&, MatrixXcd&, ArrayXf&, ArrayXXf&, int, bool);
+        void getFidelity(ArrayXf, ArrayXf, int, float, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, int, ArrayXf&, ArrayXXf&, bool);
+        void optimizePulse(float, float, int, float, float, ArrayXf&, ArrayXf&, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, MatrixXcd&, ArrayXf&, ArrayXXf&, int, bool);
         void evolveState(float, int, MatrixXcd&, MatrixXcd&, int, int, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
