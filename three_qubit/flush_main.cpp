@@ -84,7 +84,7 @@ int main() {
     I = Matrix2cd::Identity();
     s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
     MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011,
-              000NNN, 111NNN, 100NNN, 010NNN, 001NNN, 110NNN, 101NNN, 011NNN, r100100, finalState;
+              r000NNN, r111NNN, r100NNN, r010NNN, r001NNN, r110NNN, r101NNN, r011NNN, r100100, finalState;
     MatrixXcd ls000[] = {s0,s0,s0,s0,s0,s0}; MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
     MatrixXcd ls100[] = {s1,s0,s0,s0,s0,s0}; MatrixXcd ls010[] = {s0,s1,s0,s0,s0,s0};
     MatrixXcd ls001[] = {s0,s0,s1,s0,s0,s0}; MatrixXcd ls110[] = {s1,s1,s0,s0,s0,s0};
@@ -93,6 +93,7 @@ int main() {
     MatrixXcd N100[] = {s1,s0,s0,I,I,I}; MatrixXcd N010[] = {s0,s1,s0,I,I,I};
     MatrixXcd N001[] = {s0,s0,s1,I,I,I}; MatrixXcd N110[] = {s1,s1,s0,I,I,I};
     MatrixXcd N101[] = {s1,s0,s1,I,I,I}; MatrixXcd N011[] = {s0,s1,s1,I,I,I};
+    MatrixXcd ls100100[] = {s1,s0,s0,s1,s0,s0};
     num_ops = 6;
 
     ArrayXf cx(20), cy(20); 
@@ -114,10 +115,11 @@ int main() {
     rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
     rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
     rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
-    000NNN = bf.tensor(N000, num_ops); 111NNN = bf.tensor(N111, num_ops);
-    100NNN = bf.tensor(N100, num_ops); 010NNN = bf.tensor(N010, num_ops);
-    001NNN = bf.tensor(N001, num_ops); 110NNN = bf.tensor(N110, num_ops);
-    101NNN = bf.tensor(N101, num_ops); 011NNN = bf.tensor(N011, num_ops);
+    r000NNN = bf.tensor(N000, num_ops); r111NNN = bf.tensor(N111, num_ops);
+    r100NNN = bf.tensor(N100, num_ops); r010NNN = bf.tensor(N010, num_ops);
+    r001NNN = bf.tensor(N001, num_ops); r110NNN = bf.tensor(N110, num_ops);
+    r101NNN = bf.tensor(N101, num_ops); r011NNN = bf.tensor(N011, num_ops);
+    r100100 = bf.tensor(ls100100, num_ops);
 
     // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
 
@@ -144,7 +146,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.optimizePulse(tp, dt, 100, dc, acc, cx, cy, rho000, rho100, rho010, fidelities, dataList, numFidelities, checking_min);
+    bf.optimizePulse(tp, dt, 10, dc, acc, cx, cy, rho000, rho100, rho010, r100100, r100NNN, r010NNN, fidelities, dataList, numFidelities, checking_min);
 
     // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, numFidelities, fidelities, dataList, checking_min);
     
