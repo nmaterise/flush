@@ -1,9 +1,9 @@
 #include <iostream>
-// #include <Eigen>
+#include <Eigen>
 // #include <KroneckerProduct>
 
 using namespace std;
-// using namespace Eigen;
+using namespace Eigen;
 
 // #define PI 3.14159265358979323846
 // #define IM std::complex<double> (0.0, 1.0)
