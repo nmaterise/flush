@@ -85,11 +85,7 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     dataList.setZero(numFidelities + 2, listLength);
     for(int i = 0; i < listLength; i++) {
         H = HP + pulse(t*dt, tp, cx, Nmax)*HX1
-               + pulse(t*dt, tp, cy, Nmax)*HY1
-               + pulse(t*dt, tp, cx, Nmax)*HX2
-               + pulse(t*dt, tp, cy, Nmax)*HY2
-               + pulse(t*dt, tp, cx, Nmax)*HX3
-               + pulse(t*dt, tp, cy, Nmax)*HY3 + HS;
+               + pulse(t*dt, tp, cy, Nmax)*HY1 + HS;
         lindbladRK4(0, 0, dt, H, currentState1);
         lindbladRK4(0, 0, dt, H, currentState2);
         lindbladRK4(0, 0, dt, H, currentState3);
