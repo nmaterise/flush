@@ -30,10 +30,10 @@ basic_funcs::basic_funcs(float cOn, float cOff, float J) {
     a2 = tensor(a2List, num_ops); a2d = a2.adjoint();
     a3 = tensor(a3List, num_ops); a3d = a3.adjoint();
 
-    HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
+    HP = -J*(X1*X2 + X2*X3 + X1*X3);
     HS = 2*J*(Z1S + Z2S + Z3S);
     HX1 = X1*X1S; HX2 = X2*X2S; HX3 = X3*X3S;
-    HY1 = X1*Y1S; HY2 = X2*Y2S; HY3 = X3*Y3S;
+    HY1 = Y1*Y1S; HY2 = Y2*Y2S; HY3 = Y3*Y3S;
 
     collapseOn = cOn; collapseOff = cOff;
 }
