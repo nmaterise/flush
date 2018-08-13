@@ -74,12 +74,12 @@ inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixX
     return;
 }
 
-void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r100100, MatrixXcd& r100NNN, MatrixXcd& r010NNN, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
+void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r000100, MatrixXcd& r100NNN, MatrixXcd& r010NNN, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
     MatrixXcd currentState1, currentState2, currentState3, H;
     float F, t;
     int Nmax, Findex, listLength;
     Nmax = cx.size();
-    currentState1 = rho000; currentState2 = rho100; currentState3 = rho010;
+    currentState1 = rho100; currentState2 = rho000; currentState3 = rho010;
     t = dt;
     listLength = tp/dt;
     dataList.setZero(numFidelities + 2, listLength);
@@ -90,8 +90,8 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
         lindbladRK4(0, 0, dt, H, currentState2);
         lindbladRK4(0, 0, dt, H, currentState3);
         dataList(0, i) = t;
-        dataList(1, i) = (r100100*currentState1.adjoint()).cwiseAbs().trace();
-        dataList(2, i) = (rho100*currentState2.adjoint()).cwiseAbs().trace();
+        dataList(1, i) = (r000100*currentState1.adjoint()).cwiseAbs().trace();
+        dataList(2, i) = (rho000*currentState2.adjoint()).cwiseAbs().trace();
         dataList(3, i) = (rho010*currentState3.adjoint()).cwiseAbs().trace();
         t += dt;
     }

@@ -1,10 +1,10 @@
 // Operator declarations
 
 #include <iostream>
-// #include <Eigen/Dense>
-// #include <unsupported/Eigen/KroneckerProduct>
-#include <Eigen>
-#include <KroneckerProduct>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/KroneckerProduct>
+// #include <Eigen>
+// #include <KroneckerProduct>
 
 using namespace std;
 using namespace Eigen;

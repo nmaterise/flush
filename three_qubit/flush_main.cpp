@@ -90,14 +90,14 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    int tp, tf, num_ops, numFidelities, Ncycles, Ohm, listLength;
+    int tp, tf, num_ops, numFidelities, Ncycles, Ohm, listLength, maxIt;
     float dt, dc, acc, collapseOn, collapseOff, J, F;
     bool flush, checking_min;
     Matrix2cd I, s0, s1;
     I = Matrix2cd::Identity();
     s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
     MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011,
-              r000NNN, r111NNN, r100NNN, r010NNN, r001NNN, r110NNN, r101NNN, r011NNN, r100100, finalState;
+              r000NNN, r111NNN, r100NNN, r010NNN, r001NNN, r110NNN, r101NNN, r011NNN, r000100, finalState;
     MatrixXcd ls000[] = {s0,s0,s0,s0,s0,s0}; MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
     MatrixXcd ls100[] = {s1,s0,s0,s0,s0,s0}; MatrixXcd ls010[] = {s0,s1,s0,s0,s0,s0};
     MatrixXcd ls001[] = {s0,s0,s1,s0,s0,s0}; MatrixXcd ls110[] = {s1,s1,s0,s0,s0,s0};
@@ -106,14 +106,14 @@ int main() {
     MatrixXcd N100[] = {s1,s0,s0,I,I,I}; MatrixXcd N010[] = {s0,s1,s0,I,I,I};
     MatrixXcd N001[] = {s0,s0,s1,I,I,I}; MatrixXcd N110[] = {s1,s1,s0,I,I,I};
     MatrixXcd N101[] = {s1,s0,s1,I,I,I}; MatrixXcd N011[] = {s0,s1,s1,I,I,I};
-    MatrixXcd ls100100[] = {s1,s0,s0,s1,s0,s0};
+    MatrixXcd ls000100[] = {s0,s0,s0,s1,s0,s0};
     num_ops = 6;
 
     ArrayXf cx(20), cy(20); 
     ArrayXf pulse_c[2];
     cx.setZero(); cy.setZero();
     pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
-    tp = 200; tf = 40; Ncycles = 3; numFidelities = 2;
+    tp = 100; tf = 40; Ncycles = 3; numFidelities = 2;
     dt = 0.1; dc = 0.0001; acc = 1e-5;
     collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
     flush = 1; checking_min = 0;
@@ -131,14 +131,17 @@ int main() {
     r100NNN = bf.tensor(N100, num_ops); r010NNN = bf.tensor(N010, num_ops);
     r001NNN = bf.tensor(N001, num_ops); r110NNN = bf.tensor(N110, num_ops);
     r101NNN = bf.tensor(N101, num_ops); r011NNN = bf.tensor(N011, num_ops);
-    r100100 = bf.tensor(ls100100, num_ops);
+    r000100 = bf.tensor(ls000100, num_ops);
 
     // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
 
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
+
+    maxIt = 10000;
+    evolve_file = "./outFiles/output_" + to_string(maxIt) + ".dat";
     ArrayXXf dataList;
-    if(flush) evolve_file = "./outFiles/yes_coupling.dat";
-    else evolve_file = "./outFiles/no_coupling.dat";
+    // if(flush) evolve_file = "./outFiles/yes_coupling.dat";
+    // else evolve_file = "./outFiles/no_coupling.dat";
 
     /*
     evolve_file = "./outFiles/outputF" + to_string(numFidelities) + "_" + to_string(tp);
@@ -159,7 +162,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.optimizePulse(tp, dt, 0, dc, acc, cx, cy, rho000, rho100, rho010, r100100, r100NNN, r010NNN, fidelities, dataList, numFidelities, checking_min);
+    bf.optimizePulse(tp, dt, maxIt, dc, acc, cx, cy, rho000, rho100, rho010, r000100, r100NNN, r010NNN, fidelities, dataList, numFidelities, checking_min);
 
     // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
     
