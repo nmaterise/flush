@@ -1,8 +1,9 @@
-#include "basic_funcs.h"
+#include "basic_funcs_vec.h"
 
-basic_funcs::basic_funcs(float cOn, float cOff, float J) {
+basic_funcs_vec::basic_funcs_vec(float cOn, float cOff, float J) {
     int num_ops = 6;
     I = Matrix2cd::Identity();
+    MatrixXcd lsI[] = {I,I,I,I,I,I}; Eye = tensor(lsI, num_ops);
     a << 0, 1, 0, 0; X << 0, 1, 1, 0; Z << 1, 0, 0, -1; Y << 0, IM, -IM, 0;
     MatrixXcd X1List[] = {X,I,I,I,I,I}; MatrixXcd X1SList[] = {I,I,I,X,I,I};
     MatrixXcd Y1List[] = {Y,I,I,I,I,I}; MatrixXcd Y1SList[] = {I,I,I,Y,I,I};
@@ -38,17 +39,23 @@ basic_funcs::basic_funcs(float cOn, float cOff, float J) {
     collapseOn = cOn; collapseOff = cOff;
 }
 
-basic_funcs::~basic_funcs() {
+basic_funcs_vec::~basic_funcs_vec() {
 
 }
 
-MatrixXcd basic_funcs::tensor(MatrixXcd* matrix_list, int num_matrices) {
+MatrixXcd basic_funcs_vec::tensor(MatrixXcd* matrix_list, int num_matrices) {
     MatrixXcd output = kroneckerProduct(matrix_list[0], matrix_list[1]).eval();
     for(int i = 2; i < num_matrices; i++) output = kroneckerProduct(output, matrix_list[i]).eval();
     return output;
 }
 
-float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
+VectorXcd basic_funcs_vec::tensor_vec(VectorXcd* vector_list, int num_vectors) {
+    VectorXcd output = kroneckerProduct(vector_list[0], vector_list[1]).eval();
+    for(int i = 2; i < num_vectors; i++) output = kroneckerProduct(output, vector_list[i]).eval();
+    return output;
+}
+
+float basic_funcs_vec::pulse(float t, int tp, ArrayXf& c, int Nmax) {
     float f = 0;
     for(int n = 1; n <= Nmax; n++) {
         f += c[n - 1]*sin(n*PI*t/tp);
@@ -56,43 +63,44 @@ float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
     return f;
 }
 
-inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
-    output = 2.0*IM*PI*(rho*H - H*rho) 
-             + cp*(X1*rho*X1 - rho) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
-             + cp*(X2*rho*X2 - rho) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
-             + cp*(X3*rho*X3 - rho) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));
+inline void basic_funcs_vec::timePropagator(float dt, VectorXcd& psi, MatrixXcd& H, VectorXcd& output) {
+    output = 2.0*PI*(Eye - IM*H*dt)*psi;
     return;
 }
 
-inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixXcd& H, MatrixXcd& rho) {
-    MatrixXcd t1, t2, t3, k1, k2, k3, k4;
-    lindbladME(col1, col2, rho, H, k1);
-    t1 = rho + 0.5*step*k1; lindbladME(col1, col2, t1, H, k2);
-    t2 = rho + 0.5*step*k2; lindbladME(col1, col2, t2, H, k3);
-    t3 = rho + step*k3; lindbladME(col1, col2, t3, H, k4);
-    rho = rho + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
+inline void basic_funcs_vec::timePropagatorRK4(float step, MatrixXcd& H, VectorXcd& psi) {
+    VectorXcd t1, t2, t3, k1, k2, k3, k4;
+    timePropagator(step, psi, H, k1);
+    t1 = psi + 0.5*step*k1; timePropagator(step, t1, H, k2);
+    t2 = psi + 0.5*step*k2; timePropagator(step, t2, H, k3);
+    t3 = psi + step*k3; timePropagator(step, t3, H, k4);
+    psi = psi + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
     return;
 }
 
-void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r000100, MatrixXcd& r100NNN, MatrixXcd& r010NNN, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
-    MatrixXcd currentState1, currentState2, currentState3, H;
+void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, VectorXcd& ket000, VectorXcd& ket100, VectorXcd& ket010, VectorXcd& k000100, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
+    VectorXcd currentState1, currentState2, currentState3;
+    MatrixXcd H;
     float F, t;
     int Nmax, Findex, listLength;
     Nmax = cx.size();
-    currentState1 = rho100; currentState2 = rho000; currentState3 = rho010;
+    currentState1 = ket100; currentState2 = ket000; currentState3 = ket010;
     t = dt;
     listLength = tp/dt;
     dataList.setZero(numFidelities + 2, listLength);
     for(int i = 0; i < listLength; i++) {
         H = HP + pulse(t, tp, cx, Nmax)*HX1
                + pulse(t, tp, cy, Nmax)*HY1 + HS;
-        lindbladRK4(0, 0, dt, H, currentState1);
-        lindbladRK4(0, 0, dt, H, currentState2);
-        lindbladRK4(0, 0, dt, H, currentState3);
+        timePropagatorRK4(dt, H, currentState1);
+        timePropagatorRK4(dt, H, currentState2);
+        timePropagatorRK4(dt, H, currentState3);
         dataList(0, i) = t;
-        dataList(1, i) = (r000100*currentState1.adjoint()).cwiseAbs().trace();
-        dataList(2, i) = (rho000*currentState2.adjoint()).cwiseAbs().trace();
-        dataList(3, i) = (rho010*currentState3.adjoint()).cwiseAbs().trace();
+        dataList(1, i) = (k000100.adjoint()*currentState1).squaredNorm();
+        dataList(2, i) = (ket000.adjoint()*currentState2).squaredNorm();
+        dataList(3, i) = (ket010.adjoint()*currentState3).squaredNorm();
+        // dataList(1, i) = (k000100*currentState1.adjoint()).cwiseAbs().trace();
+        // dataList(2, i) = (ket000*currentState2.adjoint()).cwiseAbs().trace();
+        // dataList(3, i) = (ket010*currentState3.adjoint()).cwiseAbs().trace();
         t += dt;
     }
     fidelities(1) = dataList(1, listLength - 1);
@@ -110,17 +118,18 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
         }     
     }
     fidelities(0) = F;
+    cout << "DOINK" << endl;
     return;
 }
 
-void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r100100, MatrixXcd& r100NNN, MatrixXcd& r010NNN, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
+void basic_funcs_vec::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, VectorXcd& ket000, VectorXcd& ket100, VectorXcd& ket010, VectorXcd& k000100, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
     Nmax = cx.size(); it = 0; eps = dc;
     ArrayXf dFx(Nmax), dFy(Nmax);
 
-    getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
-    
+    getFidelity(cx, cy, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
+    /*
     F = fidelities(0);
     cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
     while(it <  maxIt && (1 - F) > acc) {
@@ -132,22 +141,22 @@ void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float a
             ArrayXf diff_vec(Nmax);
             diff_vec.setZero();
             for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
-            getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+            getFidelity(cx + eps*diff_vec, cy, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
             dFx(i) = fidelities(0) - F;
-            getFidelity(cx, cy + eps*diff_vec, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+            getFidelity(cx, cy + eps*diff_vec, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
             dFy(i) = fidelities(0) - F;
         }
         cx += dFx; cy += dFy;
-        getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+        getFidelity(cx, cy, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
         F = fidelities(0);
         it++;
-    }
+    }*/
     cout << "=== FINAL FIDELITIES ===\n" << fidelities << endl;
     cout << "=== NUM OF ITERATIONS ===\n" << it << endl;
     return;
 }
 
-void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
+void basic_funcs_vec::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
     float collapse, Ohm1, Ohm2, Ohm3;
     int tmax, Nmax, dataIndex, tcycle, tcurrent, listLength;
     MatrixXcd currentState, H;
@@ -182,7 +191,7 @@ void basic_funcs::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixX
             else H = HP + Ohm1*HX1 + Ohm2*HX2 + Ohm3*HX3 + HS;
             dataList(0, dataIndex) = tcurrent + t*dt;
             dataList(1, dataIndex) = (target*currentState.adjoint()).cwiseAbs().trace();
-            lindbladRK4(collapseOn, collapse, dt, H, currentState);
+            // lindbladRK4(collapseOn, collapse, dt, H, currentState);
             dataIndex++;
         }
         tcurrent += tcycle;

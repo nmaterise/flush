@@ -7,22 +7,24 @@
 //#include <KroneckerProduct>
 
 #include "omp.h"
-#include "basic_funcs.h"
+#include "basic_funcs_vec.h"
 #include "time.h"
 
 using namespace std;
 using namespace Eigen;
 
 void printRunTime(time_t t0, time_t t1) {
-    int t_run, h, m, s; 
+    int t_run, d, h, m, s; 
     t_run = difftime(t1, t0);
+    d = floor(t_run/(24*3600));
     h = floor(t_run/3600);
-    m = floor(t_run/60);
+    m = floor(t_run/60); m = m%60;
     s = t_run%60;
-    cout << "TIME TO RUN:\n" 
-         << h << " hr " 
-         << (m%60) << " min " 
-         << s << " sec " << endl;
+    cout << "TIME TO RUN:\n"
+         << d << "d " 
+         << h << "h " 
+         << m << "m " 
+         << s << "s " << endl;
     return;
 }
 
@@ -90,24 +92,18 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    int tp, tf, num_ops, numFidelities, Ncycles, Ohm, listLength, maxIt;
+    int tp, tf, num_vec, numFidelities, Ncycles, Ohm, listLength, maxIt;
     float dt, dc, acc, collapseOn, collapseOff, J, F;
     bool flush, checking_min;
-    Matrix2cd I, s0, s1;
-    I = Matrix2cd::Identity();
-    s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
-    MatrixXcd rho000, rho111, rho100, rho010, rho001, rho110, rho101, rho011,
-              r000NNN, r111NNN, r100NNN, r010NNN, r001NNN, r110NNN, r101NNN, r011NNN, r000100, finalState;
-    MatrixXcd ls000[] = {s0,s0,s0,s0,s0,s0}; MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
-    MatrixXcd ls100[] = {s1,s0,s0,s0,s0,s0}; MatrixXcd ls010[] = {s0,s1,s0,s0,s0,s0};
-    MatrixXcd ls001[] = {s0,s0,s1,s0,s0,s0}; MatrixXcd ls110[] = {s1,s1,s0,s0,s0,s0};
-    MatrixXcd ls101[] = {s1,s0,s1,s0,s0,s0}; MatrixXcd ls011[] = {s0,s1,s1,s0,s0,s0};
-    MatrixXcd N000[] = {s0,s0,s0,I,I,I}; MatrixXcd N111[] = {s1,s1,s1,I,I,I}; 
-    MatrixXcd N100[] = {s1,s0,s0,I,I,I}; MatrixXcd N010[] = {s0,s1,s0,I,I,I};
-    MatrixXcd N001[] = {s0,s0,s1,I,I,I}; MatrixXcd N110[] = {s1,s1,s0,I,I,I};
-    MatrixXcd N101[] = {s1,s0,s1,I,I,I}; MatrixXcd N011[] = {s0,s1,s1,I,I,I};
-    MatrixXcd ls000100[] = {s0,s0,s0,s1,s0,s0};
-    num_ops = 6;
+    Vector2cd s0, s1;
+    s0 << 1, 0; s1 << 0, 1;
+    VectorXcd ket000, ket111, ket100, ket010, ket001, ket110, ket101, ket011, k000100, finalState;
+    VectorXcd ls000[] = {s0,s0,s0,s0,s0,s0}; VectorXcd ls111[] = {s1,s1,s1,s0,s0,s0}; 
+    VectorXcd ls100[] = {s1,s0,s0,s0,s0,s0}; VectorXcd ls010[] = {s0,s1,s0,s0,s0,s0};
+    VectorXcd ls001[] = {s0,s0,s1,s0,s0,s0}; VectorXcd ls110[] = {s1,s1,s0,s0,s0,s0};
+    VectorXcd ls101[] = {s1,s0,s1,s0,s0,s0}; VectorXcd ls011[] = {s0,s1,s1,s0,s0,s0};
+    VectorXcd ls000100[] = {s0,s0,s0,s1,s0,s0};
+    num_vec = 6;
 
     ArrayXf cx(20), cy(20); 
     ArrayXf pulse_c[2];
@@ -121,17 +117,13 @@ int main() {
     ArrayXf fidelities(numFidelities + 1);
     fidelities.setZero();
 
-    basic_funcs bf(collapseOn, collapseOff, J);
+    basic_funcs_vec bf(collapseOn, collapseOff, J);
 
-    rho000 = bf.tensor(ls000, num_ops); rho111 = bf.tensor(ls111, num_ops);
-    rho100 = bf.tensor(ls100, num_ops); rho010 = bf.tensor(ls010, num_ops);
-    rho001 = bf.tensor(ls001, num_ops); rho110 = bf.tensor(ls110, num_ops);
-    rho101 = bf.tensor(ls101, num_ops); rho011 = bf.tensor(ls011, num_ops);
-    r000NNN = bf.tensor(N000, num_ops); r111NNN = bf.tensor(N111, num_ops);
-    r100NNN = bf.tensor(N100, num_ops); r010NNN = bf.tensor(N010, num_ops);
-    r001NNN = bf.tensor(N001, num_ops); r110NNN = bf.tensor(N110, num_ops);
-    r101NNN = bf.tensor(N101, num_ops); r011NNN = bf.tensor(N011, num_ops);
-    r000100 = bf.tensor(ls000100, num_ops);
+    ket000 = bf.tensor_vec(ls000, num_vec); ket111 = bf.tensor_vec(ls111, num_vec);
+    ket100 = bf.tensor_vec(ls100, num_vec); ket010 = bf.tensor_vec(ls010, num_vec);
+    ket001 = bf.tensor_vec(ls001, num_vec); ket110 = bf.tensor_vec(ls110, num_vec);
+    ket101 = bf.tensor_vec(ls101, num_vec); ket011 = bf.tensor_vec(ls011, num_vec);
+    k000100 = bf.tensor_vec(ls000100, num_vec);
 
     // MatrixXcd rhoList[8] = {rho000, rho100, rho010, rho001, rho110, rho101, rho011, rho111};
 
@@ -162,7 +154,7 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.optimizePulse(tp, dt, maxIt, dc, acc, cx, cy, rho000, rho100, rho010, r000100, r100NNN, r010NNN, fidelities, dataList, numFidelities, checking_min);
+    bf.optimizePulse(tp, dt, maxIt, dc, acc, cx, cy, ket000, ket100, ket010, k000100, fidelities, dataList, numFidelities, checking_min);
 
     // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
     
