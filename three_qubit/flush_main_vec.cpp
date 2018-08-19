@@ -130,7 +130,7 @@ int main() {
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
 
     maxIt = 0;
-    evolve_file = "./outFiles/output_" + to_string(maxIt) + ".dat";
+    evolve_file = "./outFiles/output_vec_" + to_string(maxIt) + ".dat";
     ArrayXXf dataList;
     // if(flush) evolve_file = "./outFiles/yes_coupling.dat";
     // else evolve_file = "./outFiles/no_coupling.dat";
