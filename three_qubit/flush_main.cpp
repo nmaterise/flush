@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-// #include <Eigen/Dense>
-// #include <unsupported/Eigen/KroneckerProduct>
-#include <Eigen>
-#include <KroneckerProduct>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/KroneckerProduct>
+// #include <Eigen>
+// #include <KroneckerProduct>
 
 #include "omp.h"
 #include "basic_funcs.h"
