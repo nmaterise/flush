@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <Eigen/Dense>
-#include <unsupported/Eigen/KroneckerProduct>
-//#include <Eigen>
-//#include <KroneckerProduct>
+// #include <Eigen/Dense>
+// #include <unsupported/Eigen/KroneckerProduct>
+#include <Eigen>
+#include <KroneckerProduct>
 
 #include "omp.h"
 #include "basic_funcs.h"
@@ -90,7 +90,7 @@ void optimizeFlushCycle(int mult, int k, int mintf, int maxtf, MatrixXcd *rhoLis
 int main() {
     string evolve_file, pulse_file;
     time_t t0, t1;
-    int tp, tf, num_ops, numFidelities, Ncycles, Ohm, listLength, maxIt;
+    int tp, tf, num_ops, numFidelities, Ncycles, Ohm, maxIt;
     float dt, dc, acc, collapseOn, collapseOff, J, F;
     bool flush, checking_min;
     Matrix2cd I, s0, s1;
@@ -138,8 +138,12 @@ int main() {
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
 
     maxIt = 0;
-    evolve_file = "./outFiles/output_" + to_string(maxIt) + ".dat";
+    // evolve_file = "./outFiles/output_" + to_string(maxIt) + ".dat";
+    evolve_file = "./output_" + to_string(maxIt) + ".dat";
+
+    // int listLength = tp/dt + 1;
     ArrayXXf dataList;
+    // dataList.setZero(2, listLength);
     // if(flush) evolve_file = "./outFiles/yes_coupling.dat";
     // else evolve_file = "./outFiles/no_coupling.dat";
 
@@ -154,7 +158,6 @@ int main() {
     // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
     cx[0] = 0.01;
     pulse_c[0] = cx; pulse_c[1] = cy;
-    
 
     time(&t0);
 
