@@ -30,7 +30,8 @@ class basic_funcs_vec {
         // System functions
         MatrixXcd tensor(MatrixXcd*, int);
         VectorXcd tensor_vec(VectorXcd*, int);
-        float pulse(float, int, ArrayXf&, int);
+
+        inline float pulse(float, int, ArrayXf&, int);
         inline void timePropagator(float, VectorXcd&, MatrixXcd&, VectorXcd&);
         inline void timePropagatorRK4(float, MatrixXcd&, VectorXcd&);
         void getFidelity(ArrayXf, ArrayXf, int, float, VectorXcd&, VectorXcd&, VectorXcd&, VectorXcd&, int, ArrayXf&, ArrayXXf&, bool);
@@ -51,3 +52,26 @@ class basic_funcs_vec {
 };
 
 #endif // BASIC_FUNCS_H
+
+inline float basic_funcs_vec::pulse(float t, int tp, ArrayXf& c, int Nmax) {
+    float f = 0;
+    for(int n = 1; n <= Nmax; n++) {
+        f += c[n - 1]*sin(n*PI*t/tp);
+    }
+    return f;
+}
+
+inline void basic_funcs_vec::timePropagator(float dt, VectorXcd& psi, MatrixXcd&        H, VectorXcd& output) {
+    output = (Eye - 2.0*PI*IM*H*dt)*psi;
+    return;
+}
+
+inline void basic_funcs_vec::timePropagatorRK4(float step, MatrixXcd& H,        VectorXcd& psi) {
+    VectorXcd t1, t2, t3, k1, k2, k3, k4;
+    timePropagator(step, psi, H, k1);
+    t1 = psi + 0.5*step*k1; timePropagator(step, t1, H, k2);
+    t2 = psi + 0.5*step*k2; timePropagator(step, t2, H, k3);
+    t3 = psi + step*k3; timePropagator(step, t3, H, k4);
+    psi = psi + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
+    return;
+}

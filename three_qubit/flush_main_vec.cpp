@@ -111,7 +111,7 @@ int main() {
     pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
     tp = 40; tf = 40; Ncycles = 3; numFidelities = 2;
     dt = 0.1; dc = 0.0001; acc = 1e-5;
-    collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.2;
+    collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
     flush = 1; checking_min = 0;
 
     ArrayXf fidelities(numFidelities + 1);
