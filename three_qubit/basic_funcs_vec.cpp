@@ -34,7 +34,7 @@ basic_funcs_vec::basic_funcs_vec(float cOn, float cOff, float J) {
     HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
     HS = 2*J*(Z1S + Z2S + Z3S);
     HX1 = X1*X1S; HX2 = X2*X2S; HX3 = X3*X3S;
-    HY1 = Y1*Y1S; HY2 = Y2*Y2S; HY3 = Y3*Y3S;
+    HY1 = X1*Y1S; HY2 = X2*Y2S; HY3 = X3*Y3S;
 
     collapseOn = cOn; collapseOff = cOff;
 }
@@ -64,7 +64,7 @@ float basic_funcs_vec::pulse(float t, int tp, ArrayXf& c, int Nmax) {
 }
 
 inline void basic_funcs_vec::timePropagator(float dt, VectorXcd& psi, MatrixXcd& H, VectorXcd& output) {
-    output = 2.0*PI*(Eye - IM*H*dt)*psi;
+    output = (Eye - 2.0*PI*IM*H*dt)*psi;
     return;
 }
 
@@ -129,7 +129,6 @@ void basic_funcs_vec::optimizePulse(float tp, float dt, int maxIt, float dc, flo
     ArrayXf dFx(Nmax), dFy(Nmax);
 
     getFidelity(cx, cy, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
-    /*
     F = fidelities(0);
     cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
     while(it <  maxIt && (1 - F) > acc) {
@@ -150,7 +149,7 @@ void basic_funcs_vec::optimizePulse(float tp, float dt, int maxIt, float dc, flo
         getFidelity(cx, cy, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
         F = fidelities(0);
         it++;
-    }*/
+    }
     cout << "=== FINAL FIDELITIES ===\n" << fidelities << endl;
     cout << "=== NUM OF ITERATIONS ===\n" << it << endl;
     return;

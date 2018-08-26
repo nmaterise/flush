@@ -56,25 +56,25 @@ float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
     return f;
 }
 
-inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
-    output = 2.0*IM*PI*(rho*H - H*rho) 
-             + cp*(X1*rho*X1 - rho) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
-             + cp*(X2*rho*X2 - rho) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
-             + cp*(X3*rho*X3 - rho) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));
-    return;
-}
+// inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
+//     output = 2.0*IM*PI*(rho*H - H*rho) 
+//              + cp*(X1*rho*X1 - rho) + cs*(a1*rho*a1d - 0.5*(a1d*a1*rho + rho*a1d*a1))
+//              + cp*(X2*rho*X2 - rho) + cs*(a2*rho*a2d - 0.5*(a2d*a2*rho + rho*a2d*a2))
+//              + cp*(X3*rho*X3 - rho) + cs*(a3*rho*a3d - 0.5*(a3d*a3*rho + rho*a3d*a3));   
+//     return;
+// }
 
-inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixXcd& H, MatrixXcd& rho) {
-    MatrixXcd t1, t2, t3, k1, k2, k3, k4;
-    lindbladME(col1, col2, rho, H, k1);
-    t1 = rho + 0.5*step*k1; lindbladME(col1, col2, t1, H, k2);
-    t2 = rho + 0.5*step*k2; lindbladME(col1, col2, t2, H, k3);
-    t3 = rho + step*k3; lindbladME(col1, col2, t3, H, k4);
-    rho = rho + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
-    return;
-}
+// inline void basic_funcs::lindbladRK4(float col1, float col2, float step, MatrixXcd& H, MatrixXcd& rho) {
+//     MatrixXcd t1, t2, t3, k1, k2, k3, k4;
+//     lindbladME(col1, col2, rho, H, k1);
+//     t1 = rho + 0.5*step*k1; lindbladME(col1, col2, t1, H, k2);
+//     t2 = rho + 0.5*step*k2; lindbladME(col1, col2, t2, H, k3);
+//     t3 = rho + step*k3; lindbladME(col1, col2, t3, H, k4);
+//     rho = rho + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
+//     return;
+// }
 
-void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r000100, MatrixXcd& r100NNN, MatrixXcd& r010NNN, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
+void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r000100, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
     MatrixXcd currentState1, currentState2, currentState3, H;
     float F, t;
     int Nmax, Findex, listLength;
@@ -84,9 +84,9 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     listLength = tp/dt;
     dataList.setZero(numFidelities + 2, listLength);
     for(int i = 0; i < listLength; i++) {
-        H = HP + 0.01*HX1 + HS;
-        // H = HP + pulse(t, tp, cx, Nmax)*HX1
-        //        + pulse(t, tp, cy, Nmax)*HY1 + HS;
+        // H = HP + 0.01*HX1 + HS;
+        H = HP + pulse(t, tp, cx, Nmax)*HX1
+               + pulse(t, tp, cy, Nmax)*HY1 + HS;
         lindbladRK4(0, 0, dt, H, currentState1);
         lindbladRK4(0, 0, dt, H, currentState2);
         lindbladRK4(0, 0, dt, H, currentState3);
@@ -114,13 +114,13 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     return;
 }
 
-void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r100100, MatrixXcd& r100NNN, MatrixXcd& r010NNN, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
+void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, MatrixXcd& rho000, MatrixXcd& rho100, MatrixXcd& rho010, MatrixXcd& r000100, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
     int Nmax, it; 
     Nmax = cx.size(); it = 0; eps = dc;
     ArrayXf dFx(Nmax), dFy(Nmax);
 
-    getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+    getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r000100, numFidelities, fidelities, dataList, checking_min);
     
     F = fidelities(0);
     cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
@@ -133,13 +133,13 @@ void basic_funcs::optimizePulse(float tp, float dt, int maxIt, float dc, float a
             ArrayXf diff_vec(Nmax);
             diff_vec.setZero();
             for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
-            getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+            getFidelity(cx + eps*diff_vec, cy, tp, dt, rho000, rho100, rho010, r000100, numFidelities, fidelities, dataList, checking_min);
             dFx(i) = fidelities(0) - F;
-            getFidelity(cx, cy + eps*diff_vec, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+            getFidelity(cx, cy + eps*diff_vec, tp, dt, rho000, rho100, rho010, r000100, numFidelities, fidelities, dataList, checking_min);
             dFy(i) = fidelities(0) - F;
         }
         cx += dFx; cy += dFy;
-        getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+        getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r000100, numFidelities, fidelities, dataList, checking_min);
         F = fidelities(0);
         it++;
     }

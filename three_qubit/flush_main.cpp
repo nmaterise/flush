@@ -3,8 +3,8 @@
 #include <string>
 #include <Eigen/Dense>
 #include <unsupported/Eigen/KroneckerProduct>
-// #include <Eigen>
-// #include <KroneckerProduct>
+//#include <Eigen>
+//#include <KroneckerProduct>
 
 #include "omp.h"
 #include "basic_funcs.h"
@@ -156,7 +156,8 @@ int main() {
 
     // cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
     // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
-    cx[0] = 0.01;
+    // cx[0] = 0.0061685; cy[0] = 0.006;
+    cx[0] = 0.01; cy[0] = 0.009;
     pulse_c[0] = cx; pulse_c[1] = cy;
 
     time(&t0);
@@ -165,9 +166,9 @@ int main() {
     int t_cyc[] = {tp, tf};
     Ohm = 0;
 
-    bf.optimizePulse(tp, dt, maxIt, dc, acc, cx, cy, rho000, rho100, rho010, r000100, r100NNN, r010NNN, fidelities, dataList, numFidelities, checking_min);
+    bf.optimizePulse(tp, dt, maxIt, dc, acc, cx, cy, rho000, rho100, rho010, r000100, fidelities, dataList, numFidelities, checking_min);
 
-    // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, r100NNN, r010NNN, numFidelities, fidelities, dataList, checking_min);
+    // bf.getFidelity(cx, cy, tp, dt, rho000, rho100, rho010, r100100, numFidelities, fidelities, dataList, checking_min);
     
     // bf.evolveState(dt, Ncycles, rho111, rho111, tp, tf, pulse_c, Ohm, flush, dataList, F, finalState);
     outputPlotData(evolve_file, dataList);
