@@ -110,7 +110,7 @@ int main() {
     cx.setZero(); cy.setZero();
     pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
     tp = 40; tf = 40; Ncycles = 3; numFidelities = 2;
-    dt = 0.1; dc = 0.0001; acc = 1e-5;
+    dt = 0.01; dc = 0.0001; acc = 1e-5;
     collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
     flush = 1; checking_min = 0;
 
@@ -130,7 +130,9 @@ int main() {
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
 
     maxIt = 0;
-    evolve_file = "./output_vec_" + to_string(maxIt) + ".dat";
+    // evolve_file = "./output_vec_" + to_string(maxIt) + ".dat";
+    evolve_file = "./output_vec_tp=" + to_string(tp) + ".dat";
+    evolve_file = "./output_vec_tp=" + to_string(tp) + ".pls";
     ArrayXXf dataList;
     // if(flush) evolve_file = "./outFiles/yes_coupling.dat";
     // else evolve_file = "./outFiles/no_coupling.dat";
@@ -145,7 +147,7 @@ int main() {
     // cx << 0.0200494,4.03523e-05,-0.000354767,1.01328e-05,-0.000664413,2.54512e-05,-0.0010761,-0.000144541,-0.000993192,-1.40071e-05,0.000656784,8.40425e-06,2.15173e-05,0.00011009,0.000214219,3.09944e-06,0.000324488,0.000138164,0.000117004,0.000171006;
     // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
     // cx[0] = 0.061685; cy[0] = 0.05;
-    cx[0] = 0.006;
+    cx[0] = 0.01;
     pulse_c[0] = cx; pulse_c[1] = cy;
     
 

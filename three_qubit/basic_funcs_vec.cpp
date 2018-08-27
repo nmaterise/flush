@@ -32,7 +32,7 @@ basic_funcs_vec::basic_funcs_vec(float cOn, float cOff, float J) {
     a3 = tensor(a3List, num_ops); a3d = a3.adjoint();
 
     HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
-    HS = 2*J*(Z1S + Z2S + Z3S);
+    HS = -2*J*(Z1S + Z2S + Z3S);
     HX1 = X1*X1S; HX2 = X2*X2S; HX3 = X3*X3S;
     HY1 = Y1*Y1S; HY2 = Y2*Y2S; HY3 = Y3*Y3S;
 
@@ -55,29 +55,6 @@ VectorXcd basic_funcs_vec::tensor_vec(VectorXcd* vector_list, int num_vectors) {
     return output;
 }
 
-// float basic_funcs_vec::pulse(float t, int tp, ArrayXf& c, int Nmax) {
-//     float f = 0;
-//     for(int n = 1; n <= Nmax; n++) {
-//         f += c[n - 1]*sin(n*PI*t/tp);
-//     }
-//     return f;
-// }
-
-// inline void basic_funcs_vec::timePropagator(float dt, VectorXcd& psi, MatrixXcd& H, VectorXcd& output) {
-//     output = (Eye - 2.0*PI*IM*H*dt)*psi;
-//     return;
-// }
-
-// inline void basic_funcs_vec::timePropagatorRK4(float step, MatrixXcd& H, VectorXcd& psi) {
-//     VectorXcd t1, t2, t3, k1, k2, k3, k4;
-//     timePropagator(step, psi, H, k1);
-//     t1 = psi + 0.5*step*k1; timePropagator(step, t1, H, k2);
-//     t2 = psi + 0.5*step*k2; timePropagator(step, t2, H, k3);
-//     t3 = psi + step*k3; timePropagator(step, t3, H, k4);
-//     psi = psi + step*(k1 + 2*k2 + 2*k3 + k4)/6.0;
-//     return;
-// }
-
 void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, VectorXcd& ket000, VectorXcd& ket100, VectorXcd& ket010, VectorXcd& k000100, int numFidelities, ArrayXf& fidelities, ArrayXXf& dataList, bool checking_min) {
     VectorXcd currentState1, currentState2, currentState3;
     MatrixXcd H;
@@ -98,9 +75,6 @@ void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, Vect
         dataList(1, i) = (currentState1.adjoint()*k000100).squaredNorm();
         dataList(2, i) = (currentState2.adjoint()*ket000).squaredNorm();
         dataList(3, i) = (currentState3.adjoint()*ket010).squaredNorm();
-        // dataList(1, i) = (k000100*currentState1.adjoint()).cwiseAbs().trace();
-        // dataList(2, i) = (ket000*currentState2.adjoint()).cwiseAbs().trace();
-        // dataList(3, i) = (ket010*currentState3.adjoint()).cwiseAbs().trace();
         t += dt;
     }
     fidelities(1) = dataList(1, listLength - 1);
@@ -115,10 +89,9 @@ void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, Vect
         for(int f = 1; f < numFidelities; f++) {
             fidelities(f + 1) = dataList(1, f*Findex);
             F *= fidelities(f + 1);
-        }     
+        }
     }
     fidelities(0) = F;
-    cout << "DOINK" << endl;
     return;
 }
 
@@ -161,7 +134,7 @@ void basic_funcs_vec::evolveState(float dt, int Ncycles, MatrixXcd& initial, Mat
     MatrixXcd currentState, H;
     Ohm1 = Ohm; Ohm2 = Ohm; Ohm3 = Ohm;
     Nmax = pulse_c[0].size();
-    ArrayXf c1(Nmax), c2(Nmax);// c3(Nmax);
+    ArrayXf c1(Nmax), c2(Nmax);
     currentState = initial; tcurrent = 0; dataIndex = 0;
     finalState = MatrixXcd::Zero(6,6);
     if(flush) listLength = (tp*ceil(Ncycles/2.0) + tf*floor(Ncycles/2.0))/dt + 1;
@@ -172,12 +145,12 @@ void basic_funcs_vec::evolveState(float dt, int Ncycles, MatrixXcd& initial, Mat
     for(int i = 0; i < Ncycles; i++) {
         if(flush) {
             if(i%2 == 0) {
-                tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];// c3 = pulse_c[2];
+                tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];
             } else {
-                tcycle = tf; collapse = collapseOff; c1.setZero(); c2.setZero();// c3.setZero();
+                tcycle = tf; collapse = collapseOff; c1.setZero(); c2.setZero();
             }
         } else {
-            tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];// c3 = pulse_c[2];
+            tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {
