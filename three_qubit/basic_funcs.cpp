@@ -48,13 +48,13 @@ MatrixXcd basic_funcs::tensor(MatrixXcd* matrix_list, int num_matrices) {
     return output;
 }
 
-float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
-    float f = 0;
-    for(int n = 1; n <= Nmax; n++) {
-        f += c[n - 1]*sin(n*PI*t/tp);
-    }
-    return f;
-}
+// float basic_funcs::pulse(float t, int tp, ArrayXf& c, int Nmax) {
+//     float f = 0;
+//     for(int n = 1; n <= Nmax; n++) {
+//         f += c[n - 1]*sin(n*PI*t/tp);
+//     }
+//     return f;
+// }
 
 // inline void basic_funcs::lindbladME(float cp, float cs, MatrixXcd& rho, MatrixXcd& H, MatrixXcd& output) {
 //     output = 2.0*IM*PI*(rho*H - H*rho) 
@@ -84,7 +84,6 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     listLength = tp/dt;
     dataList.setZero(numFidelities + 2, listLength);
     for(int i = 0; i < listLength; i++) {
-        // H = HP + 0.01*HX1 + HS;
         H = HP + pulse(t, tp, cx, Nmax)*HX1
                + pulse(t, tp, cy, Nmax)*HY1 + HS;
         lindbladRK4(0, 0, dt, H, currentState1);
@@ -106,7 +105,7 @@ void basic_funcs::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, MatrixXc
     else {
         Findex = floor((listLength - 1)/(numFidelities - 1));
         for(int f = 1; f < numFidelities; f++) {
-            fidelities(f + 1) = dataList(2, f*Findex);
+            fidelities(f + 1) = dataList(1, f*Findex);
             F *= fidelities(f + 1);
         }     
     }

@@ -34,7 +34,7 @@ basic_funcs_vec::basic_funcs_vec(float cOn, float cOff, float J) {
     HP = -J*(Z1*Z2 + Z2*Z3 + Z1*Z3);
     HS = 2*J*(Z1S + Z2S + Z3S);
     HX1 = X1*X1S; HX2 = X2*X2S; HX3 = X3*X3S;
-    HY1 = X1*Y1S; HY2 = X2*Y2S; HY3 = X3*Y3S;
+    HY1 = Y1*Y1S; HY2 = Y2*Y2S; HY3 = Y3*Y3S;
 
     collapseOn = cOn; collapseOff = cOff;
 }
@@ -91,9 +91,9 @@ void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, Vect
     for(int i = 0; i < listLength; i++) {
         H = HP + pulse(t, tp, cx, Nmax)*HX1
                + pulse(t, tp, cy, Nmax)*HY1 + HS;
-        timePropagatorRK4(dt, H, currentState1);
-        timePropagatorRK4(dt, H, currentState2);
-        timePropagatorRK4(dt, H, currentState3);
+        timePropagatorRK4(dt, H, currentState1); currentState1 = currentState1/currentState1.norm();
+        timePropagatorRK4(dt, H, currentState2); currentState2 = currentState2/currentState2.norm();
+        timePropagatorRK4(dt, H, currentState3); currentState3 = currentState3/currentState3.norm();
         dataList(0, i) = t;
         dataList(1, i) = (currentState1.adjoint()*k000100).squaredNorm();
         dataList(2, i) = (currentState2.adjoint()*ket000).squaredNorm();
