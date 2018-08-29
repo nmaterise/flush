@@ -40,6 +40,14 @@ void outputPlotData(string filename, ArrayXXf& FdataList) {
     fout.close();
     return;
 }
+
+void outputPulseData(string filename, ArrayXf& cx, ArrayXf& cy) {
+    ofstream fout;
+    fout.open(filename.c_str());
+    fout << cx << endl << cy << endl;
+    fout.close();
+    return;
+}
 /*
 void getMatrix(basic_funcs& bf, int Ncycles, int mult, int l, float k, ArrayXf cx, ArrayXf cy, MatrixXcd *rhoList, ArrayXXf FdataList, MatrixXf& matrixM) {
     float collapseOn, collapseOff;
@@ -129,10 +137,10 @@ int main() {
 
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
 
-    maxIt = 0;
+    maxIt = 1000;
     // evolve_file = "./output_vec_" + to_string(maxIt) + ".dat";
-    evolve_file = "./output_vec_tp=" + to_string(tp) + ".dat";
-    evolve_file = "./output_vec_tp=" + to_string(tp) + ".pls";
+    evolve_file = "./output_tp=" + to_string(tp) + "_it=" + to_string(maxIt) + ".dat";
+    pulse_file = "./output_tp=" + to_string(tp) + "_it=" + to_string(maxIt) + ".pls";
     ArrayXXf dataList;
     // if(flush) evolve_file = "./outFiles/yes_coupling.dat";
     // else evolve_file = "./outFiles/no_coupling.dat";
