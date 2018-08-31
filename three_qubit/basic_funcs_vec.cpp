@@ -68,9 +68,9 @@ void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, Vect
     for(int i = 0; i < listLength; i++) {
         H = HP + pulse(t, tp, cx, Nmax)*HX1
                + pulse(t, tp, cy, Nmax)*HY1 + HS;
-        timePropagatorRK4(dt, H, currentState1); currentState1 = currentState1/currentState1.norm();
-        timePropagatorRK4(dt, H, currentState2); currentState2 = currentState2/currentState2.norm();
-        timePropagatorRK4(dt, H, currentState3); currentState3 = currentState3/currentState3.norm();
+        timePropagatorRK4(dt, H, currentState1); currentState1.normalize();
+        timePropagatorRK4(dt, H, currentState2); currentState2.normalize();
+        timePropagatorRK4(dt, H, currentState3); currentState3.normalize();
         dataList(0, i) = t;
         dataList(1, i) = (currentState1.adjoint()*k000100).squaredNorm();
         dataList(2, i) = (currentState2.adjoint()*ket000).squaredNorm();
@@ -87,13 +87,15 @@ void basic_funcs_vec::getFidelity(ArrayXf cx, ArrayXf cy, int tp, float dt, Vect
     else {
         Findex = floor((listLength - 1)/(numFidelities - 1));
         for(int f = 1; f < numFidelities; f++) {
-            fidelities(f + 1) = dataList(1, f*Findex);
+            fidelities(f + 1) = dataList(2, f*Findex);
             F *= fidelities(f + 1);
         }
     }
     fidelities(0) = F;
     return;
 }
+
+// This currently uses a gradient ascent optimization algorithm. Gotta try to use a BFGS algorithm
 
 void basic_funcs_vec::optimizePulse(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, VectorXcd& ket000, VectorXcd& ket100, VectorXcd& ket010, VectorXcd& k000100, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
     float F, eps;
@@ -128,12 +130,54 @@ void basic_funcs_vec::optimizePulse(float tp, float dt, int maxIt, float dc, flo
     return;
 }
 
-void basic_funcs_vec::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf* pulse_c, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
+void basic_funcs_vec::BFGSoptimize(float tp, float dt, int maxIt, float dc, float acc, ArrayXf& cx, ArrayXf& cy, VectorXcd& ket000, VectorXcd& ket100, VectorXcd& ket010, VectorXcd& k000100, ArrayXf& fidelities, ArrayXXf& dataList, int numFidelities, bool checking_min) {
+    float F, eps;
+    int Nmax, it; 
+    Nmax = cx.size(); it = 0; eps = dc;
+    MatrixXf B; B = Eye;
+    VectorXf x(2*Nmax), p(2*Nmax), s(2*Nmax), y(2*Nmax);
+    ArrayXf dFx(Nmax), dFy(Nmax);
+
+    x << cx, cy;
+
+    getFidelity(x.head(Nmax), x.tail(Nmax), tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
+    F = fidelities(0);
+    cout << "=== INITIAL FIDELITIES ===\n" << fidelities << endl;
+    while(it <  maxIt && (1 - F) > acc) {
+        if((1 - F)/acc > 100) eps = dc;
+        else if((1 - F)/acc > 10) eps = 0.1*dc;
+        else eps = 0.01*dc;
+        #pragma omp parallel for
+        for(int i = 0; i < Nmax; i++) {
+            ArrayXf diff_vec(Nmax);
+            diff_vec.setZero();
+            for(int j = 0; j < Nmax; j++) if(i == j) diff_vec(j) = 1;
+            getFidelity(x.head(Nmax) + eps*diff_vec, x.tail(Nmax), tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
+            dFx(i) = fidelities(0) - F;
+            getFidelity(x.head(Nmax), x.tail(Nmax) + eps*diff_vec, tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
+            dFy(i) = fidelities(0) - F;
+        }
+        p << dFx/eps, dFy/eps;
+        // x.head(Nmax) += dFx; x.tail(Nmax) += dFy;
+        getFidelity(x.head(Nmax), x.tail(Nmax), tp, dt, ket000, ket100, ket010, k000100, numFidelities, fidelities, dataList, checking_min);
+        F = fidelities(0);
+        it++;
+        /*
+
+        */
+    }
+    cout << "=== FINAL FIDELITIES ===\n" << fidelities << endl;
+    cout << "=== NUM OF ITERATIONS ===\n" << it << endl;
+    return;
+}
+
+void basic_funcs_vec::evolveState(float dt, int Ncycles, MatrixXcd& initial, MatrixXcd& target, int tp, int tf, ArrayXf& cx, ArrayXf& cy, float Ohm, bool flush, ArrayXXf& dataList, float F, MatrixXcd& finalState) {
     float collapse, Ohm1, Ohm2, Ohm3;
     int tmax, Nmax, dataIndex, tcycle, tcurrent, listLength;
     MatrixXcd currentState, H;
     Ohm1 = Ohm; Ohm2 = Ohm; Ohm3 = Ohm;
-    Nmax = pulse_c[0].size();
+    // Nmax = pulse_c[0].size();
+    Nmax = cx.size();
     ArrayXf c1(Nmax), c2(Nmax);
     currentState = initial; tcurrent = 0; dataIndex = 0;
     finalState = MatrixXcd::Zero(6,6);
@@ -145,12 +189,14 @@ void basic_funcs_vec::evolveState(float dt, int Ncycles, MatrixXcd& initial, Mat
     for(int i = 0; i < Ncycles; i++) {
         if(flush) {
             if(i%2 == 0) {
-                tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];
+                // tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];
+                tcycle = tp; collapse = collapseOn; c1 = cx; c2 = cy;
             } else {
                 tcycle = tf; collapse = collapseOff; c1.setZero(); c2.setZero();
             }
         } else {
-            tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];
+            // tcycle = tp; collapse = collapseOn; c1 = pulse_c[0]; c2 = pulse_c[1];
+            tcycle = tp; collapse = collapseOn; c1 = cx; c2 = cy;
         }
         tmax = ceil(tcycle/dt);
         for(int t = 1; t <= tmax; t++) {

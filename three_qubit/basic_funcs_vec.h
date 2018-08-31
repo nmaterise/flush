@@ -38,7 +38,8 @@ class basic_funcs_vec {
         inline void lindbladRK4(float, float, float, MatrixXcd&, MatrixXcd&);
         void getFidelity(ArrayXf, ArrayXf, int, float, VectorXcd&, VectorXcd&, VectorXcd&, VectorXcd&, int, ArrayXf&, ArrayXXf&, bool);
         void optimizePulse(float, float, int, float, float, ArrayXf&, ArrayXf&, VectorXcd&, VectorXcd&, VectorXcd&, VectorXcd&, ArrayXf&, ArrayXXf&, int, bool);
-        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int, int, ArrayXf*, float, bool, ArrayXXf&, float, MatrixXcd&);
+        void BFGSoptimize(float, float, int, float, float, ArrayXf&, ArrayXf&, VectorXcd&, VectorXcd&, VectorXcd&, VectorXcd&, ArrayXf&, ArrayXXf&, int, bool);
+        void evolveState(float, int, MatrixXcd&, MatrixXcd&, int, int, ArrayXf&, ArrayXf&, float, bool, ArrayXXf&, float, MatrixXcd&);
 
         // Member Variables
         float collapseOn, collapseOff;

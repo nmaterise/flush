@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Eigen>
+#include <Eigen/Dense>
 // #include <KroneckerProduct>
 
 using namespace std;
@@ -45,20 +45,19 @@ using namespace Eigen;
 // 	return;
 // }
 
+void printit(ArrayXf c) {
+	cout << c << endl;
+}
+
 int main() {
-	int num1, num2, num3;
-	num1 = 5; num2 = 5; num3 = 5;
-	cout << num1 << num2 << num3 << endl;
-// 	Matrix2cd s0, s1;
-// 	s0 << 1, 0, 0, 0; s1 << 0, 0, 0, 1;
-// 	MatrixXcd rho111, mat;
-// 	MatrixXcd ls111[] = {s1,s1,s1,s0,s0,s0};
-// 	int num_ops = 6;
-// 	rho111 = tensor(ls111, num_ops);	
-// 	float cs = 1e-3/20;
-// 	lindbladME(cs, 0.03, rho111, mat);
-// 	cout << ((rho111*mat.adjoint()).trace()) << endl;
-// 	rho111 = rho111 + rho111;
-// 	cout << rho111.cwiseAbs() << endl;
+	ArrayXf cx(20), cy(20);
+	VectorXf v(40);
+	cx.setZero(); cy.setZero();
+	cx[0] = 5; cx[19] = 3;
+
+	v << cx, cy;
+
+	printit(v.head(20));
+
  	return 0;
 }

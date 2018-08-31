@@ -44,7 +44,9 @@ void outputPlotData(string filename, ArrayXXf& FdataList) {
 void outputPulseData(string filename, ArrayXf& cx, ArrayXf& cy) {
     ofstream fout;
     fout.open(filename.c_str());
-    fout << cx << endl << cy << endl;
+    for(int i = 0; i < cx.size(); i++) fout << cx(i) << " ";
+    fout << endl;
+    for(int i = 0; i < cy.size(); i++) fout << cy(i) << " ";
     fout.close();
     return;
 }
@@ -114,11 +116,11 @@ int main() {
     num_vec = 6;
 
     ArrayXf cx(20), cy(20); 
-    ArrayXf pulse_c[2];
+    // ArrayXf pulse_c[2];
     cx.setZero(); cy.setZero();
-    pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
-    tp = 40; tf = 40; Ncycles = 3; numFidelities = 2;
-    dt = 0.01; dc = 0.0001; acc = 1e-5;
+    // pulse_c[0].setZero(20); pulse_c[1].setZero(20);// pulse_c[2].setZero(20);
+    tp = 40; tf = 40; Ncycles = 3; numFidelities = 10;
+    dt = 0.01; dc = 1e-6; acc = 1e-5;
     collapseOn = 1e-3/(2*10); collapseOff = 0.03; J = 0.02;
     flush = 1; checking_min = 0;
 
@@ -137,7 +139,7 @@ int main() {
 
     // evolve_file = "./outFiles/output_" + to_string(tp) + "_" + to_string(tf) + ".dat";
 
-    maxIt = 1000;
+    maxIt = 5000;
     // evolve_file = "./output_vec_" + to_string(maxIt) + ".dat";
     evolve_file = "./output_tp=" + to_string(tp) + "_it=" + to_string(maxIt) + ".dat";
     pulse_file = "./output_tp=" + to_string(tp) + "_it=" + to_string(maxIt) + ".pls";
@@ -156,7 +158,7 @@ int main() {
     // cy << 7.86781e-06,-7.40886e-05,-5.45979e-05,-7.19428e-05,1.00732e-05,0.000286579,-7.75456e-05,0.000314772,-0.000200331,-0.000244141,-2.58088e-05,-0.00012368,-6.00219e-05,-0.00010401,2.69413e-05,-2.68817e-05,-9.77516e-06,0.000133336,-0.00010711,0.00128168;
     // cx[0] = 0.061685; cy[0] = 0.05;
     cx[0] = 0.01;
-    pulse_c[0] = cx; pulse_c[1] = cy;
+    // pulse_c[0] = cx; pulse_c[1] = cy;
     
 
     time(&t0);
@@ -171,6 +173,7 @@ int main() {
     
     // bf.evolveState(dt, Ncycles, rho111, rho111, tp, tf, pulse_c, Ohm, flush, dataList, F, finalState);
     outputPlotData(evolve_file, dataList);
+    outputPulseData(pulse_file, cx, cy);
     // cout << finalState << endl;
 
     // ArrayXXf prob00to10[5];
